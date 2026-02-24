@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Dependencies (when we add infrastructure later)
+node_modules/
+__pycache__/
+*.pyc
+
+# Build artifacts
+dist/
+build/
+.next/
