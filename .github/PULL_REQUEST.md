@@ -97,6 +97,22 @@ Full-stack TDD implementation (Weeks 1-5) + production cloud infrastructure for 
 - **Not done (browser required):** Upstash account creation + Redis database setup
 - **Not done (browser required):** Langfuse account creation + project setup
 
+### Gaps Found (Transcript Review)
+
+Items that were discussed or implied but not implemented. These are follow-up work for the next session:
+
+| # | Gap | What was expected | What exists | Priority |
+|---|---|---|---|---|
+| 1 | **Drizzle migrations not generated** | `bunx drizzle-kit generate` to produce SQL migration files | Schema + config exist, but no `drizzle/` output directory | High |
+| 2 | **No Python Upstash client** | Python equivalent of `ts/memory/upstash-hot.ts` | Only TypeScript client exists; Python still uses raw redis/FakeRedis | Medium |
+| 3 | **Old MLflow tracing not migrated** | Refactor old tracing modules to wrap/delegate to Langfuse | Old MLflow-based files left untouched alongside new Langfuse files | Low |
+| 4 | **No tests for cloud integration modules** | TDD tests for Upstash, Langfuse, Neon, Vercel API, Worker | Zero tests for any cloud module (only Weeks 1-5 have tests) | High |
+| 5 | **`@vercel/node` not installed** | `bun add -d @vercel/node` for type-checking Vercel functions | Referenced in `vercel.json` but not in `package.json` devDeps | Low |
+| 6 | **No pre-commit hooks** | `.pre-commit-config.yaml` or husky for ruff + tsc | Cloud assessment flagged "No pre-commit hooks" as missing | Medium |
+| 7 | **No Cube.js proxy in Cloudflare Worker** | Deployment plan said "Self-hosted Cube.js on Cloudflare Workers" | Worker only has MCP endpoints, no Cube.js proxy route | Medium |
+| 8 | **No Python API endpoints for Vercel** | `vercel.json` configures `@vercel/python` runtime for `api/**/*.py` | Only TypeScript endpoints exist (`api/health.ts`, `api/graph.ts`) | Medium |
+| 9 | **Agent/knowledge-worker definitions empty** | `.claude/agents/*.md` and `knowledge-workers/` init-prompt files | Directories exist but are empty | Low |
+
 ### Test Plan
 
 - [x] Python tests pass: `uv run pytest` (140 tests)

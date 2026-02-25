@@ -28,6 +28,8 @@ Tracking user prompts across Claude Code sessions for this PR.
 
 > **Prompt 6:** "update the PR body for https://github.com/jadecli-labs/jade-frontier-journal/pull/5/changes to include details from transcript review and what's done this session and not done. ilso want to store my user prompts in this session in this pr 5 for tracking"
 
+> **Prompt 7:** "update the PR body for https://github.com/jadecli-labs/jade-frontier-journal/pull/5/changes to include details from transcript review and what's done this session and not done. ilso want to store my user prompts in this session in this pr 5 for tracking"
+
 ## Decisions Made
 
 1. **Langfuse over MLflow** — cheaper (50K free traces vs. needing a VM), purpose-built for LLM agents, works on edge/serverless, better Anthropic integration
