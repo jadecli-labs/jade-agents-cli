@@ -1,0 +1,15 @@
+# Cloudflare Worker — Jade MCP Server
+# Exposes MCP tools as HTTP endpoints at the edge.
+
+name = "jade-mcp"
+main = "worker/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets (set via `wrangler secret put`):
+# NEON_DATABASE_URL
+# UPSTASH_REDIS_REST_URL
+# UPSTASH_REDIS_REST_TOKEN
+# ANTHROPIC_API_KEY

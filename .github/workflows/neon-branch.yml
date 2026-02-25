@@ -1,0 +1,56 @@
+name: Neon Branch
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+
+jobs:
+  create-branch:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    outputs:
+      db_url: ${{ steps.branch.outputs.db_url }}
+      branch_id: ${{ steps.branch.outputs.branch_id }}
+    steps:
+      - name: Create Neon branch
+        id: branch
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ env.NEON_PROJECT_ID }}
+          branch_name: pr-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Comment on PR with branch URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchId = '${{ steps.branch.outputs.branch_id }}';
+            const dbUrl = '${{ steps.branch.outputs.db_url }}';
+            const body = `### Neon Database Branch Created\n\n` +
+              `**Branch:** \`pr-${{ github.event.pull_request.number }}\`\n` +
+              `**Branch ID:** \`${branchId}\`\n\n` +
+              `This branch will be deleted when the PR is closed.`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+
+  delete-branch:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Neon branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ env.NEON_PROJECT_ID }}
+          branch: pr-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}

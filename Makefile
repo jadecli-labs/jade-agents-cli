@@ -17,7 +17,9 @@ DATE := $(shell date +%Y-%m-%d)
 
 .PHONY: setup bundle push unbundle status journal commit help \
 	test test-py test-ts lint lint-py lint-ts \
-	install install-py install-ts install-tools
+	install install-py install-ts install-tools \
+	db-generate db-migrate db-studio \
+	dev deploy-worker docker-up docker-down
 
 # ──────────────────────────────────────────
 # Sync commands (wraps jade-sync.sh)
@@ -101,13 +103,34 @@ install-tools:
 install: install-tools install-py install-ts
 
 # ──────────────────────────────────────────
-# Future commands (placeholders)
+# Database (Neon + Drizzle)
 # ──────────────────────────────────────────
 
-# make voice    — ElevenLabs voice capture + transcription (coming soon)
-# make trace    — MLflow trace viewer for recent sessions (coming soon)
-# make hot      — Display current hot memory snapshot (coming soon)
-# make cold     — Search cold memory with cue (coming soon)
+db-generate:
+	bunx drizzle-kit generate
+
+db-migrate:
+	bunx drizzle-kit migrate
+
+db-studio:
+	bunx drizzle-kit studio
+
+# ──────────────────────────────────────────
+# Deploy
+# ──────────────────────────────────────────
+
+deploy-worker:
+	npx wrangler deploy
+
+dev:
+	docker compose up -d
+	@echo "[jade] Local stack running: Postgres :5432, Redis :6379, Langfuse :3001"
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
 
 # ──────────────────────────────────────────
 # Help
@@ -134,8 +157,13 @@ help:
 	@echo "  make lint        Run all linters (ruff + tsc)"
 	@echo "  make install     Install all dependencies"
 	@echo ""
-	@echo "Coming soon:"
-	@echo "  make voice      ElevenLabs voice capture"
-	@echo "  make trace      MLflow trace viewer"
-	@echo "  make hot        Hot memory snapshot"
-	@echo "  make cold       Cold memory search"
+	@echo "Database:"
+	@echo "  make db-generate  Generate Drizzle migrations"
+	@echo "  make db-migrate   Run migrations against Neon"
+	@echo "  make db-studio    Open Drizzle Studio (visual DB editor)"
+	@echo ""
+	@echo "Deploy:"
+	@echo "  make deploy-worker  Deploy Cloudflare Worker"
+	@echo "  make dev            Start local dev stack (docker-compose)"
+	@echo "  make docker-up      Start docker-compose services"
+	@echo "  make docker-down    Stop docker-compose services"
