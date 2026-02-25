@@ -1,0 +1,25 @@
+{
+  "name": "jade-frontier-journal",
+  "version": "0.1.0",
+  "description": "Jade Frontier Journal — Bilateral Learning Partnership Agent System",
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "lint": "bun run tsc --noEmit",
+    "check": "bun test && bun run lint"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.0",
+    "ai": "^4.3.0",
+    "@ai-sdk/anthropic": "^3.0.0",
+    "@ai-sdk/mcp": "^1.0.0",
+    "@neondatabase/serverless": "^1.0.0",
+    "drizzle-orm": "^0.44.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.30.0",
+    "typescript": "^5.7.0"
+  }
+}

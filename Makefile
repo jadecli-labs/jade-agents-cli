@@ -15,7 +15,9 @@ SCRIPTS := ./scripts
 JOURNAL_DIR := ./journal
 DATE := $(shell date +%Y-%m-%d)
 
-.PHONY: setup bundle push unbundle status journal commit help
+.PHONY: setup bundle push unbundle status journal commit help \
+	test test-py test-ts lint lint-py lint-ts \
+	install install-py install-ts install-tools
 
 # ──────────────────────────────────────────
 # Sync commands (wraps jade-sync.sh)
@@ -60,6 +62,45 @@ commit:
 	@echo "[jade] Committed. Run 'make push' or 'make bundle' to sync."
 
 # ──────────────────────────────────────────
+# Testing
+# ──────────────────────────────────────────
+
+test-py:
+	uv run pytest tests/ -v --tb=short
+
+test-ts:
+	bun test
+
+test: test-py test-ts
+
+# ──────────────────────────────────────────
+# Linting
+# ──────────────────────────────────────────
+
+lint-py:
+	uv run ruff check src/ tests/
+
+lint-ts:
+	bun run tsc --noEmit
+
+lint: lint-py lint-ts
+
+# ──────────────────────────────────────────
+# Install
+# ──────────────────────────────────────────
+
+install-py:
+	uv sync
+
+install-ts:
+	bun install
+
+install-tools:
+	uv tool install ty || true
+
+install: install-tools install-py install-ts
+
+# ──────────────────────────────────────────
 # Future commands (placeholders)
 # ──────────────────────────────────────────
 
@@ -85,6 +126,13 @@ help:
 	@echo "Journal:"
 	@echo "  make journal    Create new entry from template for today"
 	@echo "  make commit     Stage all + commit with message"
+	@echo ""
+	@echo "Dev:"
+	@echo "  make test        Run all tests (Python + TypeScript)"
+	@echo "  make test-py     Run Python tests only"
+	@echo "  make test-ts     Run TypeScript tests only"
+	@echo "  make lint        Run all linters (ruff + tsc)"
+	@echo "  make install     Install all dependencies"
 	@echo ""
 	@echo "Coming soon:"
 	@echo "  make voice      ElevenLabs voice capture"

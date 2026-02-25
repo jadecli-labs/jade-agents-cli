@@ -21,3 +21,19 @@ __pycache__/
 dist/
 build/
 .next/
+*.egg-info/
+
+# uv
+.venv/
+uv.lock
+
+# bun
+bun.lockb
+
+# Test artifacts
+/tmp/jade-test-*
+*.jsonl
+!env.template
+
+# Memory files
+memory.jsonl
