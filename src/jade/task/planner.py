@@ -64,7 +64,7 @@ class PlannerResult:
 
 def _extract_json_from_tags(text: str, tag: str) -> dict[str, Any]:
     """Extract JSON from XML-style tags like <task_plan>...</task_plan>."""
-    pattern = rf"<{tag}>\s*({{.*?}})\s*</{tag}>"
+    pattern = rf"<{tag}>\s*({{[\s\S]*}})\s*</{tag}>"
     match = re.search(pattern, text, re.DOTALL)
     if not match:
         msg = f"No <{tag}> tags found in response"

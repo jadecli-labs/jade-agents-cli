@@ -73,9 +73,8 @@ class Relation:
             raise ValueError(msg)
 
 
-def validate_observation(observation: str) -> bool:
+def validate_observation(observation: str) -> None:
     """Validate that an observation is a non-empty string. Fail fast if not."""
     if not observation or not observation.strip():
         msg = "Observation must be a non-empty string"
         raise ValueError(msg)
-    return True

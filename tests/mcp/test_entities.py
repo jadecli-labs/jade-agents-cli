@@ -114,7 +114,7 @@ class TestObservation:
     def test_observation_is_non_empty_string(self) -> None:
         from jade.mcp.entities import validate_observation
 
-        assert validate_observation("Alex prefers fail-fast patterns") is True
+        validate_observation("Alex prefers fail-fast patterns")  # Should not raise
 
     def test_empty_observation_fails(self) -> None:
         from jade.mcp.entities import validate_observation

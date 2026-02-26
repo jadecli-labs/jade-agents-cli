@@ -75,9 +75,8 @@ export function createRelation(input: {
   });
 }
 
-export function validateObservation(observation: string): boolean {
+export function validateObservation(observation: string): void {
   if (!observation || !observation.trim()) {
     throw new Error("Observation must be a non-empty string");
   }
-  return true;
 }

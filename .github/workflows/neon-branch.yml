@@ -16,7 +16,6 @@ jobs:
     if: github.event.action != 'closed' && vars.NEON_PROJECT_ID != ''
     runs-on: ubuntu-latest
     outputs:
-      db_url: ${{ steps.branch.outputs.db_url }}
       branch_id: ${{ steps.branch.outputs.branch_id }}
     steps:
       - name: Create Neon branch
@@ -27,14 +26,17 @@ jobs:
           branch_name: pr-${{ github.event.pull_request.number }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
-      - name: Comment on PR with branch URL
+      - name: Comment on PR with branch info
         uses: actions/github-script@v7
+        env:
+          BRANCH_ID: ${{ steps.branch.outputs.branch_id }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         with:
           script: |
-            const branchId = '${{ steps.branch.outputs.branch_id }}';
-            const dbUrl = '${{ steps.branch.outputs.db_url }}';
+            const branchId = process.env.BRANCH_ID;
+            const prNumber = process.env.PR_NUMBER;
             const body = `### Neon Database Branch Created\n\n` +
-              `**Branch:** \`pr-${{ github.event.pull_request.number }}\`\n` +
+              `**Branch:** \`pr-${prNumber}\`\n` +
               `**Branch ID:** \`${branchId}\`\n\n` +
               `This branch will be deleted when the PR is closed.`;
             github.rest.issues.createComment({

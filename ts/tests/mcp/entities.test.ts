@@ -105,7 +105,7 @@ describe("MCP Entity/Relation/Observation schemas", () => {
   describe("Observation validation", () => {
     test("non-empty string is valid", () => {
       const { validateObservation } = require("@jade/mcp/entities");
-      expect(validateObservation("Alex prefers fail-fast")).toBe(true);
+      expect(() => validateObservation("Alex prefers fail-fast")).not.toThrow();
     });
 
     test("empty string throws", () => {
