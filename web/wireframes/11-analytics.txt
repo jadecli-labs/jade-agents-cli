@@ -1,0 +1,45 @@
+ANALYTICS  /analytics
+
+Unlocked by: Cube.js setup (ts/semantic/cube-client.ts)
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                        Search  Costs  Analytics  |
++------------------------------------------------------------------+
+|                                                                  |
+|  Analytics                                                       |
+|                                                                  |
+|  SESSIONS OVER TIME                                              |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  |  8 |         *                                              | |
+|  |  6 |    *         *                                         | |
+|  |  4 |                   *    *                                | |
+|  |  2 | *                           *                          | |
+|  |  0 +---+----+----+----+----+----+---                        | |
+|  |    Feb19 Feb20 Feb21 Feb22 Feb23 Feb24 Feb25                | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  TOOL USAGE                                                      |
+|  +------------------------------------------------------------+ |
+|  | search_nodes      ████████████████████  42                  | |
+|  | record_decision   ████████████  28                          | |
+|  | recall_context    ████████  19                              | |
+|  | create_entities   ██████  14                                | |
+|  | update_hot_memory ████  9                                   | |
+|  | log_insight       ███  7                                    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  TOKENS BY MODEL                                                 |
+|  +------------------------------------------------------------+ |
+|  | Sonnet  ██████████████████████████████  72%   18,400 tokens | |
+|  | Opus    ████████  21%                         5,200 tokens  | |
+|  | Haiku   ███  7%                               1,800 tokens  | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Three charts: sessions over time (line), tool usage (horizontal bar),
+tokens by model (horizontal bar with %).
+Data from Cube.js semantic layer via CubeClient.query().

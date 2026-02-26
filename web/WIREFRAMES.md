@@ -394,18 +394,162 @@ Session costs computed via `calculateCost()` + `formatUsageSummary()`.
 
 ---
 
+---
+
+## 11. Analytics  `/analytics`
+
+Unlocked by: Cube.js setup (`ts/semantic/cube-client.ts`)
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                        Search  Costs  Analytics  |
++------------------------------------------------------------------+
+|                                                                  |
+|  Analytics                                                       |
+|                                                                  |
+|  SESSIONS OVER TIME                                              |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  |  8 |         *                                              | |
+|  |  6 |    *         *                                         | |
+|  |  4 |                   *    *                                | |
+|  |  2 | *                           *                          | |
+|  |  0 +---+----+----+----+----+----+---                        | |
+|  |    Feb19 Feb20 Feb21 Feb22 Feb23 Feb24 Feb25                | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  TOOL USAGE                                                      |
+|  +------------------------------------------------------------+ |
+|  | search_nodes      ████████████████████  42                  | |
+|  | record_decision   ████████████  28                          | |
+|  | recall_context    ████████  19                              | |
+|  | create_entities   ██████  14                                | |
+|  | update_hot_memory ████  9                                   | |
+|  | log_insight       ███  7                                    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  TOKENS BY MODEL                                                 |
+|  +------------------------------------------------------------+ |
+|  | Sonnet  ██████████████████████████████  72%   18,400 tokens | |
+|  | Opus    ████████  21%                         5,200 tokens  | |
+|  | Haiku   ███  7%                               1,800 tokens  | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Three charts: sessions over time, tool usage, tokens by model.
+Data from Cube.js semantic layer via `CubeClient.query()`.
+
+---
+
+## 12. Agent Actions  `/actions`
+
+Unlocked by: Agent SDK wrapper (Claude Agent SDK integration)
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Live Agent Actions                                              |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Time     | Action              | Tokens | Cost    | Session | |
+|  |----------|---------------------|--------|---------|---------|  |
+|  | 10:42:03 | record_decision     |  1,240 | $0.012  | ses-003 | |
+|  | 10:41:58 | search_nodes        |    820 | $0.008  | ses-003 | |
+|  | 10:41:51 | llm-generate        |  2,100 | $0.021  | ses-003 | |
+|  | 10:40:12 | recall_context      |    640 | $0.006  | ses-003 | |
+|  | 10:39:45 | create_entities     |    980 | $0.010  | ses-003 | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  ROTS (Return on Token Spend)                                    |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  | Entities created per $1:     142                            | |
+|  | Decisions recorded per $1:    38                            | |
+|  | Sessions completed per $1:    12                            | |
+|  |                                                             | |
+|  | Total spend today:       $1.24                              | |
+|  | Total spend this week:   $8.71                              | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  ACTIVE SESSIONS                                                 |
+|  +------------------------------------------------------------+ |
+|  | ses-003  | Memory arch  | 42m TTL | 12 actions | $0.057    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Live action feed (most recent first). ROTS metrics. Active sessions with running costs.
+Data from Agent SDK action recorder + token/cost metadata.
+
+---
+
+## 13. Workers  `/workers`
+
+Unlocked by: Knowledge workers (11 worker configs + plugin system)
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Knowledge Workers                                  11 available |
+|                                                                  |
+|  [ Search workers...       ]                                     |
+|                                                                  |
+|  +---------------------+  +----------------------------------+  |
+|  | WORKERS              |  | DETAIL                          |  |
+|  |                      |  |                                  |  |
+|  | > Productivity       |  | Productivity                    |  |
+|  |   Sales              |  |                                  |  |
+|  |   Customer Support   |  | Memory, dashboard sync,         |  |
+|  |   Product Mgmt       |  | workplace shorthand             |  |
+|  |   Marketing          |  |                                  |  |
+|  |   Legal              |  | Connectors:                     |  |
+|  |   Finance            |  | Slack, Notion, Asana, Linear,   |  |
+|  |   Data               |  | Jira, Monday, ClickUp,          |  |
+|  |   Enterprise Search  |  | Microsoft 365                   |  |
+|  |   Bio Research       |  |                                  |  |
+|  |   Plugin Mgmt        |  | Dev Team (6 agents):            |  |
+|  |                      |  | VP Product, VP Engineering,     |  |
+|  |                      |  | Frontend, Middleware, Backend,  |  |
+|  |                      |  | QA                              |  |
+|  |                      |  |                                  |  |
+|  |                      |  | Status: not deployed            |  |
+|  |                      |  | [ Deploy ]                      |  |
+|  +---------------------+  +----------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Two-panel like `/graph`. Click worker left -> detail right.
+Shows: description, connectors list, 6-agent dev team, deploy status.
+Data from worker config YAML files + plugin registry.
+
+---
+
 ## Page Summary
 
-| Route | Purpose | Data Source |
-|-------|---------|-------------|
-| `/` | Landing | Static |
-| `/dashboard` | Service health | `GET /api/health` |
-| `/graph` | Knowledge graph | `GET /api/graph` |
-| `/tools` | MCP tool reference | `getJadeToolDefinitions()` |
-| `/tasks` | Task planning + review | `POST /api/plan`, `POST /api/review` |
-| `/sessions` | Session browser | `GET /api/sessions` |
-| `/chat` | Agent conversation | `POST /api/chat` (streaming) |
-| `/traces` | Trace viewer | Langfuse API |
-| `/search` | Semantic search | `POST /api/search` |
-| `/costs` | Pricing + spend | `PRICING` + `calculateCost()` |
-| `/docs/*` | Documentation | MDX via fumadocs |
+| Route | Purpose | Data Source | Blocked By |
+|-------|---------|-------------|------------|
+| `/` | Landing | Static | — |
+| `/dashboard` | Service health | `GET /api/health` | — |
+| `/graph` | Knowledge graph | `GET /api/graph` | Drizzle migrations |
+| `/tools` | MCP tool reference | `getJadeToolDefinitions()` | — |
+| `/tasks` | Task planning + review | `POST /api/plan`, `POST /api/review` | — |
+| `/sessions` | Session browser | `GET /api/sessions` | Upstash route |
+| `/chat` | Agent conversation | `POST /api/chat` (streaming) | AI SDK route |
+| `/traces` | Trace viewer | Langfuse API | Langfuse route |
+| `/search` | Semantic search | `POST /api/search` | Embedding pipeline |
+| `/costs` | Pricing + spend | `PRICING` + `calculateCost()` | — |
+| `/analytics` | Charts + metrics | `CubeClient.query()` | Cube.js setup |
+| `/actions` | Live agent feed + ROTS | Agent SDK recorder | Agent SDK wrapper |
+| `/workers` | Knowledge worker catalog | Worker YAML configs | Worker configs |
+| `/docs/*` | Documentation | MDX via fumadocs | — |

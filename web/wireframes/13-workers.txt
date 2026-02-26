@@ -1,0 +1,40 @@
+WORKERS  /workers
+
+Unlocked by: Knowledge workers (11 worker configs + plugin system)
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                              Search  Costs  Analytics  Workers   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Knowledge Workers                                  11 available |
+|                                                                  |
+|  [ Search workers...       ]                                     |
+|                                                                  |
+|  +---------------------+  +----------------------------------+  |
+|  | WORKERS              |  | DETAIL                          |  |
+|  |                      |  |                                  |  |
+|  | > Productivity       |  | Productivity                    |  |
+|  |   Sales              |  |                                  |  |
+|  |   Customer Support   |  | Memory, dashboard sync,         |  |
+|  |   Product Mgmt       |  | workplace shorthand             |  |
+|  |   Marketing          |  |                                  |  |
+|  |   Legal              |  | Connectors:                     |  |
+|  |   Finance            |  | Slack, Notion, Asana, Linear,   |  |
+|  |   Data               |  | Jira, Monday, ClickUp,          |  |
+|  |   Enterprise Search  |  | Microsoft 365                   |  |
+|  |   Bio Research       |  |                                  |  |
+|  |   Plugin Mgmt        |  | Dev Team (6 agents):            |  |
+|  |                      |  | VP Product, VP Engineering,     |  |
+|  |                      |  | Frontend, Middleware, Backend,  |  |
+|  |                      |  | QA                              |  |
+|  |                      |  |                                  |  |
+|  |                      |  | Status: not deployed            |  |
+|  |                      |  | [ Deploy ]                      |  |
+|  +---------------------+  +----------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+Two-panel like /graph. Click worker left -> detail right.
+Shows: description, connectors list, 6-agent dev team, deploy status.
+Data from worker config YAML files + plugin registry.
