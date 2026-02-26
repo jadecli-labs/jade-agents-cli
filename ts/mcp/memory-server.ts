@@ -36,7 +36,12 @@ function loadGraph(filePath: string): KnowledgeGraph {
     const content = readFileSync(filePath, "utf-8");
     for (const line of content.split("\n")) {
       if (!line.trim()) continue;
-      const record = JSON.parse(line);
+      let record: any;
+      try {
+        record = JSON.parse(line);
+      } catch {
+        continue; // Skip corrupt lines, keep loading valid ones
+      }
       if (record.type === "entity") {
         const existing = graph.entities.find((e) => e.name === record.name);
         if (existing) {
@@ -59,7 +64,7 @@ function loadGraph(filePath: string): KnowledgeGraph {
       }
     }
   } catch {
-    // File doesn't exist or is empty — start fresh
+    // File unreadable — start with empty graph
   }
   return graph;
 }

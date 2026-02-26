@@ -44,8 +44,8 @@ def create_jade_server(
             }
         )
 
-        # Create person entity if not exists
-        if not graph.find_entity(decidedBy):
+        # Create person entity if not exists (skip empty names)
+        if decidedBy and decidedBy.strip() and not graph.find_entity(decidedBy):
             graph.entities.append(
                 {
                     "name": decidedBy,
@@ -54,8 +54,8 @@ def create_jade_server(
                 }
             )
 
-        # Create session entity if not exists
-        if not graph.find_entity(sessionId):
+        # Create session entity if not exists (skip empty names)
+        if sessionId and sessionId.strip() and not graph.find_entity(sessionId):
             graph.entities.append(
                 {
                     "name": sessionId,
@@ -64,21 +64,23 @@ def create_jade_server(
                 }
             )
 
-        # Create relations
-        graph.relations.append(
-            {
-                "from": decidedBy,
-                "to": decisionName,
-                "relationType": "made_decision",
-            }
-        )
-        graph.relations.append(
-            {
-                "from": decisionName,
-                "to": sessionId,
-                "relationType": "participated_in",
-            }
-        )
+        # Create relations (skip if endpoint is empty)
+        if decidedBy and decidedBy.strip():
+            graph.relations.append(
+                {
+                    "from": decidedBy,
+                    "to": decisionName,
+                    "relationType": "made_decision",
+                }
+            )
+        if sessionId and sessionId.strip():
+            graph.relations.append(
+                {
+                    "from": decisionName,
+                    "to": sessionId,
+                    "relationType": "participated_in",
+                }
+            )
 
         graph.save()
         return json.dumps(
