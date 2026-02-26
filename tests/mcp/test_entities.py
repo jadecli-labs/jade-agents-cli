@@ -41,6 +41,20 @@ class TestEntitySchema:
         entity = Entity(name="Alex", entity_type="Person", observations=obs)
         assert len(entity.observations) == 3
 
+    def test_entity_coerces_list_observations_to_tuple(self) -> None:
+        from jade.mcp.entities import Entity
+
+        entity = Entity(name="Alex", entity_type="Person", observations=["a", "b"])
+        assert isinstance(entity.observations, tuple)
+        assert entity.observations == ("a", "b")
+
+    def test_entity_observations_tuple_is_immutable(self) -> None:
+        from jade.mcp.entities import Entity
+
+        entity = Entity(name="Alex", entity_type="Person", observations=["obs1"])
+        with pytest.raises((TypeError, AttributeError)):
+            entity.observations = ("changed",)  # type: ignore[misc]
+
 
 class TestJadeEntityTypes:
     """Jade defines specific entity types for its knowledge graph."""

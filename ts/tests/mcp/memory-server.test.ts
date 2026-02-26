@@ -160,6 +160,96 @@ describe("MCP Memory Server (TypeScript)", () => {
     });
   });
 
+  describe("corrupt JSONL recovery (C1)", () => {
+    test("corrupt line is skipped, valid lines loaded", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+
+      // Write JSONL with a corrupt line in the middle
+      const valid1 = JSON.stringify({ type: "entity", name: "Good1", entityType: "Concept", observations: ["ok"] });
+      const valid2 = JSON.stringify({ type: "entity", name: "Good2", entityType: "Concept", observations: ["also ok"] });
+      await Bun.write(memoryFilePath, `${valid1}\nNOT_VALID_JSON\n${valid2}\n`);
+
+      const server = createMemoryServer({ memoryFilePath });
+      const result = await server.callTool("read_graph", {});
+      const resultStr = JSON.stringify(result);
+      expect(resultStr).toContain("Good1");
+      expect(resultStr).toContain("Good2");
+    });
+
+    test("all corrupt lines result in empty graph", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+      await Bun.write(memoryFilePath, "bad line 1\n{not json\n");
+
+      const server = createMemoryServer({ memoryFilePath });
+      const result = await server.callTool("read_graph", {});
+      expect(result.entities).toHaveLength(0);
+    });
+  });
+
+  describe("observation merge order (C3)", () => {
+    test("merge preserves insertion order and deduplicates", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+      const server = createMemoryServer({ memoryFilePath });
+
+      await server.callTool("create_entities", {
+        entities: [{ name: "OrderTest", entityType: "Concept", observations: ["alpha", "beta"] }],
+      });
+      await server.callTool("add_observations", {
+        observations: [{ entityName: "OrderTest", contents: ["beta", "gamma"] }],
+      });
+
+      const result = await server.callTool("open_nodes", { names: ["OrderTest"] });
+      const entity = result.entities[0];
+      // After merge: ["alpha", "beta", "gamma"] — beta deduplicated, order preserved
+      expect(entity.observations).toEqual(["alpha", "beta", "gamma"]);
+    });
+
+    test("duplicate observations removed on merge", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+      const server = createMemoryServer({ memoryFilePath });
+
+      await server.callTool("create_entities", {
+        entities: [{ name: "DupTest", entityType: "Concept", observations: ["x", "y"] }],
+      });
+      await server.callTool("add_observations", {
+        observations: [{ entityName: "DupTest", contents: ["x", "y", "z"] }],
+      });
+
+      const result = await server.callTool("open_nodes", { names: ["DupTest"] });
+      const entity = result.entities[0];
+      expect(entity.observations).toHaveLength(3);
+      expect(entity.observations).toContain("x");
+      expect(entity.observations).toContain("y");
+      expect(entity.observations).toContain("z");
+    });
+  });
+
+  describe("add_observations notFound (H6)", () => {
+    test("returns notFound for non-existent entity", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+      const server = createMemoryServer({ memoryFilePath });
+
+      const result = await server.callTool("add_observations", {
+        observations: [{ entityName: "NonExistent", contents: ["test"] }],
+      });
+      expect(result.notFound).toBeDefined();
+      expect(result.notFound).toContain("NonExistent");
+    });
+
+    test("notFound absent when all entities exist", async () => {
+      const { createMemoryServer } = require("@jade/mcp/memory-server");
+      const server = createMemoryServer({ memoryFilePath });
+
+      await server.callTool("create_entities", {
+        entities: [{ name: "Exists", entityType: "Concept", observations: [] }],
+      });
+      const result = await server.callTool("add_observations", {
+        observations: [{ entityName: "Exists", contents: ["new obs"] }],
+      });
+      expect(result.notFound).toBeUndefined();
+    });
+  });
+
   describe("persistence", () => {
     test("data persists to JSONL file", async () => {
       const { createMemoryServer } = require("@jade/mcp/memory-server");

@@ -75,6 +75,62 @@ describe("Jade MCP Server — domain-specific tools", () => {
     });
   });
 
+  describe("record_decision empty guards (H3)", () => {
+    test("empty decidedBy creates no Person entity", async () => {
+      const { createJadeServer } = require("@jade/mcp/jade-server");
+      const server = createJadeServer({ memoryFilePath });
+
+      await server.callTool("record_decision", {
+        decisionName: "test-decision",
+        rationale: "testing",
+        decidedBy: "",
+        sessionId: "s1",
+      });
+
+      // Check underlying memory — read_graph not exposed on jade server,
+      // but we can recall_context for "Person"
+      const result = await server.callTool("recall_context", { query: "Person" });
+      const resultStr = JSON.stringify(result);
+      // No Person entity should have been created for empty decidedBy
+      expect(resultStr).not.toContain('"entityType":"Person"');
+    });
+
+    test("whitespace sessionId creates no Session entity or participated_in relation", async () => {
+      const { createJadeServer } = require("@jade/mcp/jade-server");
+      const server = createJadeServer({ memoryFilePath });
+
+      await server.callTool("record_decision", {
+        decisionName: "test-decision-2",
+        rationale: "testing",
+        decidedBy: "Alex",
+        sessionId: "   ",
+      });
+
+      const result = await server.callTool("recall_context", { query: "test-decision-2" });
+      const resultStr = JSON.stringify(result);
+      expect(resultStr).toContain("test-decision-2");
+      expect(resultStr).not.toContain("participated_in");
+    });
+
+    test("empty both creates only decision entity", async () => {
+      const { createJadeServer } = require("@jade/mcp/jade-server");
+      const server = createJadeServer({ memoryFilePath });
+
+      await server.callTool("record_decision", {
+        decisionName: "solo-decision",
+        rationale: "no author or session",
+        decidedBy: "",
+        sessionId: "",
+      });
+
+      const result = await server.callTool("recall_context", { query: "solo-decision" });
+      const resultStr = JSON.stringify(result);
+      expect(resultStr).toContain("solo-decision");
+      expect(resultStr).not.toContain("made_decision");
+      expect(resultStr).not.toContain("participated_in");
+    });
+  });
+
   describe("recall_context", () => {
     test("searches by topic", async () => {
       const { createJadeServer } = require("@jade/mcp/jade-server");

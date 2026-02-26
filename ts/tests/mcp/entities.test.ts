@@ -33,6 +33,16 @@ describe("MCP Entity/Relation/Observation schemas", () => {
       const entity = createEntity({ name: "Alex", entityType: "Person" });
       expect(entity.observations).toEqual([]);
     });
+
+    test("entity is frozen (immutable)", () => {
+      const { createEntity } = require("@jade/mcp/entities");
+      const entity = createEntity({
+        name: "Alex",
+        entityType: "Person",
+        observations: ["obs1"],
+      });
+      expect(() => { (entity as any).name = "Changed"; }).toThrow();
+    });
   });
 
   describe("Jade entity types", () => {

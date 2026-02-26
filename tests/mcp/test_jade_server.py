@@ -80,6 +80,59 @@ class TestRecordDecision:
             )
 
 
+class TestRecordDecisionEmptyGuards:
+    """H4: empty decidedBy/sessionId must not create phantom entities or relations."""
+
+    @pytest.mark.asyncio
+    async def test_empty_decided_by_creates_no_person_entity(self, memory_file: str) -> None:
+        from jade.mcp.jade_server import create_jade_server
+        from jade.mcp.memory_server import KnowledgeGraph
+
+        graph = KnowledgeGraph(file_path=memory_file)
+        server = create_jade_server(memory_file_path=memory_file, graph=graph)
+        await server.call_tool(
+            "record_decision",
+            {"decisionName": "test-decision", "rationale": "testing", "decidedBy": "", "sessionId": "s1"},
+        )
+        # Inspect graph directly — no Person entity should exist
+        entity_types = [e.get("entityType") for e in graph.entities]
+        assert "Person" not in entity_types
+
+    @pytest.mark.asyncio
+    async def test_whitespace_session_id_creates_no_session_entity(self, memory_file: str) -> None:
+        from jade.mcp.jade_server import create_jade_server
+        from jade.mcp.memory_server import KnowledgeGraph
+
+        graph = KnowledgeGraph(file_path=memory_file)
+        server = create_jade_server(memory_file_path=memory_file, graph=graph)
+        await server.call_tool(
+            "record_decision",
+            {"decisionName": "test-decision-2", "rationale": "testing", "decidedBy": "Alex", "sessionId": "   "},
+        )
+        entity_types = [e.get("entityType") for e in graph.entities]
+        assert "Decision" in entity_types
+        assert "Person" in entity_types
+        assert "Session" not in entity_types
+        relation_types = [r.get("relationType") for r in graph.relations]
+        assert "participated_in" not in relation_types
+
+    @pytest.mark.asyncio
+    async def test_empty_both_creates_only_decision(self, memory_file: str) -> None:
+        from jade.mcp.jade_server import create_jade_server
+        from jade.mcp.memory_server import KnowledgeGraph
+
+        graph = KnowledgeGraph(file_path=memory_file)
+        server = create_jade_server(memory_file_path=memory_file, graph=graph)
+        await server.call_tool(
+            "record_decision",
+            {"decisionName": "solo-decision", "rationale": "no author or session", "decidedBy": "", "sessionId": ""},
+        )
+        entity_names = [e.get("name") for e in graph.entities]
+        assert "solo-decision" in entity_names
+        assert len(graph.entities) == 1  # Only the decision entity
+        assert len(graph.relations) == 0
+
+
 class TestRecallContext:
     """recall_context searches the knowledge graph by session, date, or topic."""
 

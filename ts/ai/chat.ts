@@ -4,11 +4,11 @@
  * Fail-fast: propagates all errors immediately.
  */
 
-import { generateText, streamText, type LanguageModel, type CoreMessage } from "ai";
+import { generateText, streamText, type LanguageModel, type ModelMessage } from "ai";
 
 export interface JadeChatOptions {
   model: LanguageModel;
-  messages: CoreMessage[];
+  messages: ModelMessage[];
   system?: string;
   tools?: Record<string, any>;
 }

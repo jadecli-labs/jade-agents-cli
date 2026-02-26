@@ -1,27 +1,34 @@
 /**
  * Tests for AI SDK chat handler (generateText / streamText).
  *
- * RED phase: verifies chat functionality before implementation.
- * Uses MockLanguageModelV1 from ai/test for deterministic testing.
+ * Uses MockLanguageModelV3 from ai/test for deterministic testing.
  */
 
 import { describe, expect, it } from "bun:test";
-import { MockLanguageModelV1 } from "ai/test";
+import { MockLanguageModelV3 } from "ai/test";
+import type { LanguageModelV3GenerateResult, LanguageModelV3StreamPart } from "@ai-sdk/provider";
 import {
   jadeGenerateText,
   jadeStreamText,
   type JadeChatOptions,
 } from "../../ai/chat";
 
+function mockGenResult(text: string, inputTotal = 10, outputTotal = 5): LanguageModelV3GenerateResult {
+  return {
+    content: [{ type: "text", text }],
+    finishReason: { unified: "stop", raw: undefined },
+    usage: {
+      inputTokens: { total: inputTotal, noCache: inputTotal, cacheRead: undefined, cacheWrite: undefined },
+      outputTokens: { total: outputTotal, text: outputTotal, reasoning: undefined },
+    },
+    warnings: [],
+  };
+}
+
 describe("jadeGenerateText", () => {
   it("generates text with a model", async () => {
-    const mockModel = new MockLanguageModelV1({
-      doGenerate: async () => ({
-        rawCall: { rawPrompt: null, rawSettings: {} },
-        text: "Hello from Jade!",
-        finishReason: "stop" as const,
-        usage: { promptTokens: 10, completionTokens: 5 },
-      }),
+    const mockModel = new MockLanguageModelV3({
+      doGenerate: mockGenResult("Hello from Jade!"),
     });
 
     const result = await jadeGenerateText({
@@ -33,13 +40,8 @@ describe("jadeGenerateText", () => {
   });
 
   it("returns usage information", async () => {
-    const mockModel = new MockLanguageModelV1({
-      doGenerate: async () => ({
-        rawCall: { rawPrompt: null, rawSettings: {} },
-        text: "Response",
-        finishReason: "stop" as const,
-        usage: { promptTokens: 15, completionTokens: 8 },
-      }),
+    const mockModel = new MockLanguageModelV3({
+      doGenerate: mockGenResult("Response", 15, 8),
     });
 
     const result = await jadeGenerateText({
@@ -48,18 +50,13 @@ describe("jadeGenerateText", () => {
     });
 
     expect(result.usage).toBeDefined();
-    expect(result.usage.promptTokens).toBe(15);
-    expect(result.usage.completionTokens).toBe(8);
+    expect(result.usage.inputTokens).toBe(15);
+    expect(result.usage.outputTokens).toBe(8);
   });
 
   it("returns finish reason", async () => {
-    const mockModel = new MockLanguageModelV1({
-      doGenerate: async () => ({
-        rawCall: { rawPrompt: null, rawSettings: {} },
-        text: "Done",
-        finishReason: "stop" as const,
-        usage: { promptTokens: 5, completionTokens: 1 },
-      }),
+    const mockModel = new MockLanguageModelV3({
+      doGenerate: mockGenResult("Done", 5, 1),
     });
 
     const result = await jadeGenerateText({
@@ -71,7 +68,7 @@ describe("jadeGenerateText", () => {
   });
 
   it("propagates model errors (fail fast)", async () => {
-    const mockModel = new MockLanguageModelV1({
+    const mockModel = new MockLanguageModelV3({
       doGenerate: async () => {
         throw new Error("API rate limit exceeded");
       },
@@ -87,15 +84,10 @@ describe("jadeGenerateText", () => {
 
   it("supports system message", async () => {
     let receivedPrompt: unknown;
-    const mockModel = new MockLanguageModelV1({
+    const mockModel = new MockLanguageModelV3({
       doGenerate: async (options) => {
         receivedPrompt = options.prompt;
-        return {
-          rawCall: { rawPrompt: null, rawSettings: {} },
-          text: "I am Jade",
-          finishReason: "stop" as const,
-          usage: { promptTokens: 20, completionTokens: 3 },
-        };
+        return mockGenResult("I am Jade", 20, 3);
       },
     });
 
@@ -105,23 +97,25 @@ describe("jadeGenerateText", () => {
       messages: [{ role: "user", content: "Who are you?" }],
     });
 
-    // Verify system message was included in the prompt
     expect(receivedPrompt).toBeDefined();
   });
 });
 
 describe("jadeStreamText", () => {
   it("streams text responses", async () => {
-    const mockModel = new MockLanguageModelV1({
+    const mockModel = new MockLanguageModelV3({
       doStream: async () => ({
-        stream: new ReadableStream({
+        stream: new ReadableStream<LanguageModelV3StreamPart>({
           start(controller) {
-            controller.enqueue({ type: "text-delta" as const, textDelta: "Hello " });
-            controller.enqueue({ type: "text-delta" as const, textDelta: "World" });
+            controller.enqueue({ type: "text-delta", id: "1", delta: "Hello " });
+            controller.enqueue({ type: "text-delta", id: "2", delta: "World" });
             controller.enqueue({
-              type: "finish" as const,
-              finishReason: "stop" as const,
-              usage: { promptTokens: 5, completionTokens: 2 },
+              type: "finish",
+              finishReason: { unified: "stop", raw: undefined },
+              usage: {
+                inputTokens: { total: 5, noCache: 5, cacheRead: undefined, cacheWrite: undefined },
+                outputTokens: { total: 2, text: 2, reasoning: undefined },
+              },
             });
             controller.close();
           },
@@ -135,7 +129,6 @@ describe("jadeStreamText", () => {
       messages: [{ role: "user", content: "Hello" }],
     });
 
-    // Collect all text chunks
     const chunks: string[] = [];
     for await (const chunk of result.textStream) {
       chunks.push(chunk);
@@ -144,7 +137,7 @@ describe("jadeStreamText", () => {
   });
 
   it("produces empty text when model stream fails", async () => {
-    const mockModel = new MockLanguageModelV1({
+    const mockModel = new MockLanguageModelV3({
       doStream: async () => {
         throw new Error("Stream connection failed");
       },

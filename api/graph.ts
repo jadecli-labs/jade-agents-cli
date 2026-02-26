@@ -60,10 +60,10 @@ export default async function handler(
         relations: relationResults.length,
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("graph endpoint error:", err);
     res.status(500).json({
       error: "Internal server error",
-      hint: "Ensure NEON_DATABASE_URL is set and migrations have been run.",
     });
   }
 }

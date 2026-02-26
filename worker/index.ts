@@ -10,7 +10,7 @@ export interface Env {
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
   ANTHROPIC_API_KEY: string;
-  API_AUTH_TOKEN: string;
+  API_AUTH_TOKEN?: string;
   ENVIRONMENT: string;
 }
 
