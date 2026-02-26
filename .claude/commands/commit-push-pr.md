@@ -4,11 +4,10 @@ Run all tests and lint, then commit, push, and create/update a PR.
 
 ## Context
 
-```bash
-git status
-git diff --stat
-git log --oneline -5
-```
+- Current git status: !`git status`
+- Current diff stats: !`git diff --stat`
+- Current branch: !`git branch --show-current`
+- Recent commits: !`git log --oneline -5`
 
 ## Instructions
 
