@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "jade-memory": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "jade.mcp.memory_server"],
+      "env": {
+        "MEMORY_FILE_PATH": "${MEMORY_FILE_PATH:-./memory.jsonl}"
+      }
+    },
+    "jade-server": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "jade.mcp.jade_server"],
+      "env": {
+        "MEMORY_FILE_PATH": "${MEMORY_FILE_PATH:-./memory.jsonl}"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["bun-types"],
+    "paths": {
+      "@jade/*": ["./ts/*"]
+    },
+    "outDir": "./dist",
+    "rootDir": "./ts",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["ts/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

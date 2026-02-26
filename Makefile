@@ -15,7 +15,11 @@ SCRIPTS := ./scripts
 JOURNAL_DIR := ./journal
 DATE := $(shell date +%Y-%m-%d)
 
-.PHONY: setup bundle push unbundle status journal commit help
+.PHONY: setup bundle push unbundle status journal commit help \
+	test test-py test-ts lint lint-py lint-ts \
+	install install-py install-ts install-tools \
+	db-generate db-migrate db-studio \
+	dev deploy-worker docker-up docker-down
 
 # ──────────────────────────────────────────
 # Sync commands (wraps jade-sync.sh)
@@ -60,13 +64,73 @@ commit:
 	@echo "[jade] Committed. Run 'make push' or 'make bundle' to sync."
 
 # ──────────────────────────────────────────
-# Future commands (placeholders)
+# Testing
 # ──────────────────────────────────────────
 
-# make voice    — ElevenLabs voice capture + transcription (coming soon)
-# make trace    — MLflow trace viewer for recent sessions (coming soon)
-# make hot      — Display current hot memory snapshot (coming soon)
-# make cold     — Search cold memory with cue (coming soon)
+test-py:
+	uv run pytest tests/ -v --tb=short
+
+test-ts:
+	bun test
+
+test: test-py test-ts
+
+# ──────────────────────────────────────────
+# Linting
+# ──────────────────────────────────────────
+
+lint-py:
+	uv run ruff check src/ tests/
+
+lint-ts:
+	bun run tsc --noEmit
+
+lint: lint-py lint-ts
+
+# ──────────────────────────────────────────
+# Install
+# ──────────────────────────────────────────
+
+install-py:
+	uv sync
+
+install-ts:
+	bun install
+
+install-tools:
+	uv tool install ty || true
+
+install: install-tools install-py install-ts
+
+# ──────────────────────────────────────────
+# Database (Neon + Drizzle)
+# ──────────────────────────────────────────
+
+db-generate:
+	bunx drizzle-kit generate
+
+db-migrate:
+	bunx drizzle-kit migrate
+
+db-studio:
+	bunx drizzle-kit studio
+
+# ──────────────────────────────────────────
+# Deploy
+# ──────────────────────────────────────────
+
+deploy-worker:
+	npx wrangler deploy
+
+dev:
+	docker compose up -d
+	@echo "[jade] Local stack running: Postgres :5432, Redis :6379, Langfuse :3001"
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
 
 # ──────────────────────────────────────────
 # Help
@@ -86,8 +150,20 @@ help:
 	@echo "  make journal    Create new entry from template for today"
 	@echo "  make commit     Stage all + commit with message"
 	@echo ""
-	@echo "Coming soon:"
-	@echo "  make voice      ElevenLabs voice capture"
-	@echo "  make trace      MLflow trace viewer"
-	@echo "  make hot        Hot memory snapshot"
-	@echo "  make cold       Cold memory search"
+	@echo "Dev:"
+	@echo "  make test        Run all tests (Python + TypeScript)"
+	@echo "  make test-py     Run Python tests only"
+	@echo "  make test-ts     Run TypeScript tests only"
+	@echo "  make lint        Run all linters (ruff + tsc)"
+	@echo "  make install     Install all dependencies"
+	@echo ""
+	@echo "Database:"
+	@echo "  make db-generate  Generate Drizzle migrations"
+	@echo "  make db-migrate   Run migrations against Neon"
+	@echo "  make db-studio    Open Drizzle Studio (visual DB editor)"
+	@echo ""
+	@echo "Deploy:"
+	@echo "  make deploy-worker  Deploy Cloudflare Worker"
+	@echo "  make dev            Start local dev stack (docker-compose)"
+	@echo "  make docker-up      Start docker-compose services"
+	@echo "  make docker-down    Stop docker-compose services"

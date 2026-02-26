@@ -1,0 +1,8 @@
+[tools]
+python = "3.13"
+bun = "latest"
+node = "22"
+uv = "latest"
+
+[env]
+_.file = ".env"

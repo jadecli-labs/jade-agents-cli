@@ -11,6 +11,12 @@ Thumbs.db
 # Environment
 .env
 .env.local
+.env.*
+
+# Claude Code local files (personal, not shared)
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/CLAUDE.local.md
 
 # Dependencies (when we add infrastructure later)
 node_modules/
@@ -21,3 +27,23 @@ __pycache__/
 dist/
 build/
 .next/
+*.egg-info/
+
+# uv
+.venv/
+uv.lock
+
+# bun
+bun.lockb
+
+# Test artifacts
+/tmp/jade-test-*
+*.jsonl
+!env.template
+
+# Memory files
+memory.jsonl
+.vercel
+web/.next/
+web/node_modules/
+web/.source/

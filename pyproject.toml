@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jade"
+version = "0.1.0"
+description = "Jade Frontier Journal — Bilateral Learning Partnership Agent System"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.45.0",
+    "mcp>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "asyncpg>=0.30.0",
+    "redis>=5.0.0",
+    "pydantic>=2.0.0",
+    "langfuse>=3.14.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "dirty-equals>=0.8",
+    "ruff>=0.8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jade"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

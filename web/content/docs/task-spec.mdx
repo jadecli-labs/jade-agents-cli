@@ -1,0 +1,133 @@
+---
+title: Task Planning System
+description: 2-phase task planning with Python planner + TypeScript reviewer
+---
+
+## Overview
+
+Jade uses a 2-phase task planning system where a Python planner generates plans and a TypeScript reviewer validates them. Both use Claude's adaptive thinking.
+
+```
+User Request → Python Planner (Opus) → TaskPlan → TypeScript Reviewer (Sonnet) → Approved/Revised Plan
+```
+
+## Data Types
+
+All types are frozen/immutable. Defined in `src/jade/task/spec.py` (Python) and `ts/task/spec.ts` (TypeScript).
+
+### TaskPlan
+
+```python
+@dataclass(frozen=True)
+class TaskPlan:
+    title: str                    # Short descriptive title
+    summary: str                  # What the plan accomplishes
+    task_type: TaskType           # feat | fix | refactor | test | docs
+    priority: TaskPriority        # low | medium | high | critical
+    model_tier: ModelTier         # haiku | sonnet | opus
+    steps: tuple[TaskStep, ...]   # Ordered execution steps
+    commit_message: str           # Conventional commit message
+    reasoning: str                # Chain-of-thought explanation
+```
+
+### TaskStep
+
+```python
+@dataclass(frozen=True)
+class TaskStep:
+    description: str              # What this step does
+    file_paths: tuple[str, ...]   # Files to create/modify
+    task_type: TaskType           # Step-level task type
+    estimated_tokens: int         # Token budget for this step
+```
+
+### TokenBudget
+
+```python
+@dataclass(frozen=True)
+class TokenBudget:
+    max_input_tokens: int         # Input token limit
+    max_output_tokens: int        # Output token limit
+    thinking_tokens: int = 0      # Extended thinking budget
+```
+
+### TaskReview
+
+```python
+@dataclass(frozen=True)
+class TaskReview:
+    verdict: ReviewVerdict        # approve | revise | reject
+    findings: tuple[ReviewFinding, ...]
+    revised_plan: TaskPlan | None
+    reasoning: str
+    usage: TokenUsage | None
+```
+
+## Planner (Python)
+
+The `TaskPlanner` sends structured XML prompts to Claude Opus with adaptive thinking:
+
+```python
+from jade.task.planner import TaskPlanner, PlannerConfig
+
+planner = TaskPlanner(
+    client=anthropic.Anthropic().messages,
+    config=PlannerConfig(
+        model="claude-opus-4-6",
+        max_tokens=16_000,
+        project_context="Jade dual Python+TS monorepo",
+    ),
+)
+
+result = planner.plan("Add pgvector semantic search to cold memory")
+print(result.plan.title)      # "Add pgvector semantic search"
+print(result.cost_usd)        # 0.0175
+print(result.usage_summary)   # "1,500 tokens · (1,000 in + 500 out) · $0.0175"
+```
+
+## Reviewer (TypeScript)
+
+The `TaskReviewer` validates plans produced by the planner:
+
+```typescript
+import { TaskReviewer } from "./task/reviewer";
+
+const reviewer = new TaskReviewer(anthropicClient.messages, {
+  model: "claude-sonnet-4-6",
+  maxTokens: 16_000,
+  modelTier: "sonnet",
+  projectContext: "Jade dual Python+TS monorepo",
+});
+
+const result = await reviewer.review(plan);
+console.log(result.review.verdict);  // "approve" | "revise" | "reject"
+console.log(result.costUsd);         // 0.0069
+```
+
+## Cost Tracking
+
+Every API call tracks token usage and calculates USD cost:
+
+| Model | Input (per 1M) | Output (per 1M) | Cache Write | Cache Read |
+|-------|----------------|------------------|-------------|------------|
+| Opus | $15.00 | $75.00 | $18.75 | $1.50 |
+| Sonnet | $3.00 | $15.00 | $3.75 | $0.30 |
+| Haiku | $0.25 | $1.25 | $0.30 | $0.03 |
+
+## Testing
+
+Both planner and reviewer have fake implementations for testing without API calls:
+
+```python
+from jade.task.planner import FakePlanner
+planner = FakePlanner()
+result = planner.plan("Add a feature")
+assert result.plan.title == "Add test module"
+```
+
+```typescript
+import { FakeReviewer } from "./task/reviewer";
+const reviewer = new FakeReviewer();
+const result = await reviewer.doReview(plan);
+assert(result.review.verdict === "approve");
+```

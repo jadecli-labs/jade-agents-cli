@@ -1,0 +1,49 @@
+# Local development stack
+# Run: docker compose up
+# All cloud services have local equivalents for development.
+
+services:
+  # PostgreSQL + pgvector (local Neon equivalent)
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: jade
+      POSTGRES_PASSWORD: jade-dev
+      POSTGRES_DB: jade
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jade"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis (local Upstash equivalent)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Langfuse (local observability)
+  langfuse:
+    image: langfuse/langfuse:latest
+    environment:
+      DATABASE_URL: postgresql://jade:jade-dev@postgres:5432/jade
+      NEXTAUTH_URL: http://localhost:3001
+      NEXTAUTH_SECRET: dev-secret-change-in-production
+      SALT: dev-salt-change-in-production
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
