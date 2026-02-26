@@ -13,11 +13,15 @@ from mcp.server.fastmcp import FastMCP
 from jade.mcp.memory_server import KnowledgeGraph
 
 
-def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
+def create_jade_server(
+    memory_file_path: str = "./memory.jsonl",
+    graph: KnowledgeGraph | None = None,
+) -> FastMCP:
     """Create a Jade-specific MCP server with domain tools."""
     mcp = FastMCP("jade-tools")
-    graph = KnowledgeGraph(file_path=memory_file_path)
-    graph.load()
+    if graph is None:
+        graph = KnowledgeGraph(file_path=memory_file_path)
+        graph.load()
 
     @mcp.tool()
     def record_decision(
@@ -32,47 +36,59 @@ def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
             raise ValueError(msg)
 
         # Create decision entity
-        graph.entities.append({
-            "name": decisionName,
-            "entityType": "Decision",
-            "observations": [rationale],
-        })
+        graph.entities.append(
+            {
+                "name": decisionName,
+                "entityType": "Decision",
+                "observations": [rationale],
+            }
+        )
 
         # Create person entity if not exists
         if not graph.find_entity(decidedBy):
-            graph.entities.append({
-                "name": decidedBy,
-                "entityType": "Person",
-                "observations": [],
-            })
+            graph.entities.append(
+                {
+                    "name": decidedBy,
+                    "entityType": "Person",
+                    "observations": [],
+                }
+            )
 
         # Create session entity if not exists
         if not graph.find_entity(sessionId):
-            graph.entities.append({
-                "name": sessionId,
-                "entityType": "Session",
-                "observations": [],
-            })
+            graph.entities.append(
+                {
+                    "name": sessionId,
+                    "entityType": "Session",
+                    "observations": [],
+                }
+            )
 
         # Create relations
-        graph.relations.append({
-            "from": decidedBy,
-            "to": decisionName,
-            "relationType": "made_decision",
-        })
-        graph.relations.append({
-            "from": decisionName,
-            "to": sessionId,
-            "relationType": "participated_in",
-        })
+        graph.relations.append(
+            {
+                "from": decidedBy,
+                "to": decisionName,
+                "relationType": "made_decision",
+            }
+        )
+        graph.relations.append(
+            {
+                "from": decisionName,
+                "to": sessionId,
+                "relationType": "participated_in",
+            }
+        )
 
         graph.save()
-        return json.dumps({
-            "status": "recorded",
-            "decision": decisionName,
-            "decidedBy": decidedBy,
-            "session": sessionId,
-        })
+        return json.dumps(
+            {
+                "status": "recorded",
+                "decision": decisionName,
+                "decidedBy": decidedBy,
+                "session": sessionId,
+            }
+        )
 
     @mcp.tool()
     def recall_context(query: str) -> str:
@@ -86,11 +102,7 @@ def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
                 or any(query_lower in obs.lower() for obs in e.get("observations", []))
             ):
                 matches.append(e)
-        related = [
-            r
-            for r in graph.relations
-            if any(r["from"] == m["name"] or r["to"] == m["name"] for m in matches)
-        ]
+        related = [r for r in graph.relations if any(r["from"] == m["name"] or r["to"] == m["name"] for m in matches)]
         return json.dumps({"entities": matches, "relations": related})
 
     @mcp.tool()
@@ -103,13 +115,16 @@ def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
         # Create or update session entity
         session = graph.find_entity(sessionId)
         if session:
-            session["observations"] = list(set(session.get("observations", []) + [summary]))
+            merged = session.get("observations", []) + [summary]
+            session["observations"] = list(dict.fromkeys(merged))
         else:
-            graph.entities.append({
-                "name": sessionId,
-                "entityType": "Session",
-                "observations": [summary],
-            })
+            graph.entities.append(
+                {
+                    "name": sessionId,
+                    "entityType": "Session",
+                    "observations": [summary],
+                }
+            )
 
         # Record active threads as observations
         if activeThreads:
@@ -120,12 +135,14 @@ def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
                         session["observations"].append(f"Active thread: {thread}")
 
         graph.save()
-        return json.dumps({
-            "status": "updated",
-            "session": sessionId,
-            "summaryLength": len(summary),
-            "activeThreads": activeThreads or [],
-        })
+        return json.dumps(
+            {
+                "status": "updated",
+                "session": sessionId,
+                "summaryLength": len(summary),
+                "activeThreads": activeThreads or [],
+            }
+        )
 
     @mcp.tool()
     def log_insight(
@@ -138,25 +155,31 @@ def create_jade_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
         words = insight.split()[:5]
         name = "-".join(w.lower().strip(".,!?") for w in words)
 
-        graph.entities.append({
-            "name": name,
-            "entityType": category,
-            "observations": [insight],
-        })
+        graph.entities.append(
+            {
+                "name": name,
+                "entityType": category,
+                "observations": [insight],
+            }
+        )
 
         if sessionId:
-            graph.relations.append({
-                "from": name,
-                "to": sessionId,
-                "relationType": "participated_in",
-            })
+            graph.relations.append(
+                {
+                    "from": name,
+                    "to": sessionId,
+                    "relationType": "participated_in",
+                }
+            )
 
         graph.save()
-        return json.dumps({
-            "status": "logged",
-            "name": name,
-            "category": category,
-            "insight": insight,
-        })
+        return json.dumps(
+            {
+                "status": "logged",
+                "name": name,
+                "category": category,
+                "insight": insight,
+            }
+        )
 
     return mcp

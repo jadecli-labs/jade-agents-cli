@@ -28,11 +28,11 @@ class TestEntitySchema:
         with pytest.raises((ValueError, TypeError)):
             Entity(name="Alex", entity_type="", observations=[])
 
-    def test_entity_observations_default_to_empty_list(self) -> None:
+    def test_entity_observations_default_to_empty_tuple(self) -> None:
         from jade.mcp.entities import Entity
 
         entity = Entity(name="Alex", entity_type="Person")
-        assert entity.observations == []
+        assert entity.observations == ()
 
     def test_entity_with_multiple_observations(self) -> None:
         from jade.mcp.entities import Entity

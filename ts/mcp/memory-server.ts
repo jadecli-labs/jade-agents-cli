@@ -23,7 +23,7 @@ interface KnowledgeGraph {
   relations: RelationRecord[];
 }
 
-interface ToolDef {
+export interface ToolDef {
   name: string;
   description: string;
 }

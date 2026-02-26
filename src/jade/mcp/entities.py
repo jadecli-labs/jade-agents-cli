@@ -9,24 +9,28 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 # Jade-specific entity types
-JADE_ENTITY_TYPES: frozenset[str] = frozenset({
-    "Person",
-    "Decision",
-    "Concept",
-    "Tool",
-    "Session",
-    "Goal",
-})
+JADE_ENTITY_TYPES: frozenset[str] = frozenset(
+    {
+        "Person",
+        "Decision",
+        "Concept",
+        "Tool",
+        "Session",
+        "Goal",
+    }
+)
 
 # Jade-specific relation types (active voice)
-JADE_RELATION_TYPES: frozenset[str] = frozenset({
-    "made_decision",
-    "discussed_concept",
-    "uses_tool",
-    "has_goal",
-    "participated_in",
-    "related_to",
-})
+JADE_RELATION_TYPES: frozenset[str] = frozenset(
+    {
+        "made_decision",
+        "discussed_concept",
+        "uses_tool",
+        "has_goal",
+        "participated_in",
+        "related_to",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -35,7 +39,7 @@ class Entity:
 
     name: str
     entity_type: str
-    observations: list[str] = field(default_factory=list)
+    observations: tuple[str, ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         if not self.name or not self.name.strip():
@@ -44,6 +48,9 @@ class Entity:
         if not self.entity_type or not self.entity_type.strip():
             msg = "Entity entity_type must be a non-empty string"
             raise ValueError(msg)
+        # Coerce list → tuple for true immutability in frozen dataclass
+        if isinstance(self.observations, list):
+            object.__setattr__(self, "observations", tuple(self.observations))
 
 
 @dataclass(frozen=True)

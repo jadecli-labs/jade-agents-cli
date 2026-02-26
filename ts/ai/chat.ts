@@ -4,11 +4,11 @@
  * Fail-fast: propagates all errors immediately.
  */
 
-import { generateText, streamText, type LanguageModel } from "ai";
+import { generateText, streamText, type LanguageModel, type CoreMessage } from "ai";
 
 export interface JadeChatOptions {
   model: LanguageModel;
-  messages: Array<{ role: string; content: string }>;
+  messages: CoreMessage[];
   system?: string;
   tools?: Record<string, any>;
 }
@@ -19,7 +19,7 @@ export interface JadeChatOptions {
 export async function jadeGenerateText(options: JadeChatOptions) {
   const result = await generateText({
     model: options.model,
-    messages: options.messages as any,
+    messages: options.messages,
     ...(options.system ? { system: options.system } : {}),
     ...(options.tools ? { tools: options.tools } : {}),
   });
@@ -38,7 +38,7 @@ export async function jadeGenerateText(options: JadeChatOptions) {
 export async function jadeStreamText(options: JadeChatOptions) {
   const result = streamText({
     model: options.model,
-    messages: options.messages as any,
+    messages: options.messages,
     ...(options.system ? { system: options.system } : {}),
     ...(options.tools ? { tools: options.tools } : {}),
   });

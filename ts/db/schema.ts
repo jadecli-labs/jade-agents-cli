@@ -22,7 +22,7 @@ import {
 // pgvector custom type for embeddings
 const vector = customType<{
   data: number[];
-  dpiData: string;
+  driverData: string;
   config: { dimensions: number };
 }>({
   dataType(config) {

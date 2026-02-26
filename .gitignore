@@ -43,3 +43,4 @@ bun.lockb
 
 # Memory files
 memory.jsonl
+.vercel
