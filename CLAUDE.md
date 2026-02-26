@@ -37,6 +37,16 @@ make install       # Install all deps: uv sync + bun install
 - Python tests use `FakeRedis`, `_FakeStore`, `_fake_embed` — no external services needed.
 - TypeScript tests use in-memory fakes with the same pattern.
 - Always run `make test` before committing. All 288 tests must pass.
+- Give Claude a way to verify its work — this 2-3x the quality of results.
+
+## Things That Will Bite You
+
+- FastMCP `call_tool` returns `(list[TextContent], dict)` tuple, not a string. Use `_extract_text()`.
+- AI SDK `streamText` swallows `doStream` errors silently — they don't propagate through `textStream`.
+- ruff B017: never use bare `pytest.raises(Exception)` — use specific types.
+- ruff B905: always use `zip(a, b, strict=True)`.
+- Drizzle `customType` for pgvector: `fromDriver` param is `unknown`, not `string`.
+- `@ai-sdk/anthropic` is v3.x, `@ai-sdk/mcp` is v1.x — don't use v4/v0.2.
 
 ## Secrets
 
@@ -47,9 +57,4 @@ make install       # Install all deps: uv sync + bun install
 ## Git
 
 - Conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
-- Branch: `claude/jade-tdd-full-stack-GOCGd`
-- Push with: `git push -u origin claude/jade-tdd-full-stack-GOCGd`
-
-## Known Gaps
-
-See `.github/PULL_REQUEST.md` — 9 identified gaps from transcript review.
+- Push with: `git push -u origin <branch-name>`

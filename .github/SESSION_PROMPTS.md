@@ -32,6 +32,8 @@ Tracking user prompts across Claude Code sessions for this PR.
 
 > **Prompt 1:** "consider using the github mcp or use this github PAT token. i am okay with exposing them, i will rotate them latter. [PAT tokens + Neon API key + Redis Cloud credentials provided]"
 
+> **Prompt 2:** "i want to adopt boris cherny's and his team's best practices for how they automated claude to write 95%+ of all code. i want to adopt the best practices from anthropic's repos [anthropics, safety-research]. lets setup whatever i'm missing as a one time comprehensive fix."
+
 ## Decisions Made
 
 1. **Langfuse over MLflow** — cheaper (50K free traces vs. needing a VM), purpose-built for LLM agents, works on edge/serverless, better Anthropic integration
@@ -40,3 +42,4 @@ Tracking user prompts across Claude Code sessions for this PR.
 4. **camelCase for MCP params** — Python uses `# noqa: N803` to suppress ruff naming convention
 5. **SessionStart hook** — runs cloud status check at every session start, fires on all events (startup, resume, clear, compact)
 6. **GitHub Marketplace** — Upstash and Langfuse don't have GitHub Apps; configured via API keys in GitHub Secrets instead
+7. **Boris Cherny workflow adoption** — slash commands in `.claude/commands/`, PostToolUse format hook, "Things That Will Bite You" in CLAUDE.md, verification-first approach, `pull_request_review` trigger in claude.yml, `allowed_tools` + `id-token: write` + `actions: read` matching Anthropic's SDK repos
