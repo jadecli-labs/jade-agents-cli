@@ -1,0 +1,47 @@
+---
+title: Getting Started
+description: Jade Agents CLI — bilateral learning partnership AI agent system
+---
+
+## Architecture
+
+Jade is a dual Python + TypeScript monorepo implementing a bilateral learning partnership AI agent.
+
+```
+src/jade/    — Python source (MCP servers, agent, memory, observability, task planning)
+ts/          — TypeScript source (parallel implementations of all Python modules)
+api/         — Vercel serverless functions
+worker/      — Cloudflare Workers edge MCP server
+tests/       — Python test suite (242 tests)
+ts/tests/    — TypeScript test suite (242 tests)
+```
+
+## Core Systems
+
+| System | Python | TypeScript | Description |
+|--------|--------|------------|-------------|
+| MCP Memory | `src/jade/mcp/memory_server.py` | `ts/mcp/memory-server.ts` | 9-tool knowledge graph with JSONL persistence |
+| MCP Jade | `src/jade/mcp/jade_server.py` | `ts/mcp/jade-server.ts` | 4 domain-specific tools (decisions, context, memory, insights) |
+| Agent | `src/jade/agent/jade_agent.py` | `ts/agent/jade-agent.ts` | Claude SDK wrapper with MCP tool routing |
+| Hot Memory | `src/jade/memory/hot.py` | `ts/memory/hot.ts` | Redis/Upstash session-scoped state |
+| Cold Memory | `src/jade/memory/cold.py` | `ts/memory/cold.ts` | Neon pgvector semantic search |
+| Promotion | `src/jade/memory/promotion.py` | `ts/memory/promotion.ts` | Hot→cold with embedding generation |
+| Task Planning | `src/jade/task/planner.py` | `ts/task/reviewer.ts` | 2-phase: Python planner + TS reviewer |
+
+## Commands
+
+```bash
+make test          # Run all 484 tests (242 Python + 242 TypeScript)
+make test-py       # Python only
+make test-ts       # TypeScript only
+make lint          # Both linters: ruff check + tsc --noEmit
+make install       # Install all deps: uv sync + bun install
+```
+
+## Cloud Infrastructure
+
+- **Vercel** — Serverless API functions + preview deploys
+- **Cloudflare Workers** — Edge MCP server (100K free requests/day)
+- **Neon** — PostgreSQL + pgvector for cold memory
+- **Upstash** — Redis for hot session memory
+- **Langfuse** — Observability and tracing

@@ -44,3 +44,6 @@ bun.lockb
 # Memory files
 memory.jsonl
 .vercel
+web/.next/
+web/node_modules/
+web/.source/

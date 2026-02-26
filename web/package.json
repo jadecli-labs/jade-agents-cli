@@ -1,0 +1,27 @@
+{
+  "name": "jade-docs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "fumadocs-core": "^14.0.0",
+    "fumadocs-ui": "^14.0.0",
+    "fumadocs-mdx": "^11.0.0",
+    "@types/mdx": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.0.0"
+  }
+}

@@ -1,0 +1,135 @@
+---
+title: Jade Agent System
+description: Claude-powered AI agent with MCP knowledge graph tools
+---
+
+## Overview
+
+Jade is a bilateral learning partnership AI agent. It uses Claude as the reasoning engine and MCP (Model Context Protocol) servers for persistent knowledge graph memory.
+
+```
+User ↔ JadeAgent ↔ Claude API
+                  ↔ Memory Server (9 tools) ↔ JSONL/Neon
+                  ↔ Jade Server (4 tools) ↔ Knowledge Graph
+```
+
+## MCP Memory Server (9 Tools)
+
+The memory server implements the full `@modelcontextprotocol/server-memory` protocol:
+
+| Tool | Description |
+|------|-------------|
+| `create_entities` | Create nodes in the knowledge graph |
+| `create_relations` | Create directed edges between entities |
+| `add_observations` | Append facts to existing entities |
+| `delete_entities` | Remove entities and associated relations |
+| `delete_observations` | Remove specific observations |
+| `delete_relations` | Remove specific relations |
+| `read_graph` | Return the full graph |
+| `search_nodes` | Full-text search across entities |
+| `open_nodes` | Retrieve specific entities by name |
+
+### Entity Types
+
+```
+Person, Decision, Concept, Tool, Session, Goal
+```
+
+### Relation Types (Active Voice)
+
+```
+made_decision, discussed_concept, uses_tool, has_goal, participated_in, related_to
+```
+
+## Jade Server (4 Domain Tools)
+
+Higher-level operations that compose memory server primitives:
+
+| Tool | Description |
+|------|-------------|
+| `record_decision` | Create decision entity + person + session + relations atomically |
+| `recall_context` | Search by session, date, or topic |
+| `update_hot_memory` | Write session summary with active threads |
+| `log_insight` | Record a learning as a named concept entity |
+
+## Memory Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│                 Hot Memory                   │
+│            (Upstash Redis)                   │
+│     Session-scoped, fast, ephemeral          │
+└─────────────────┬───────────────────────────┘
+                  │ PromotionService
+                  │ (embed + persist)
+┌─────────────────▼───────────────────────────┐
+│                Cold Memory                   │
+│          (Neon + pgvector)                   │
+│     Permanent, semantic search               │
+└─────────────────────────────────────────────┘
+```
+
+### Hot Memory (Redis/Upstash)
+
+- Session-scoped key-value store
+- Fast reads/writes for active conversations
+- Stores entities, relations, session summaries
+- Auto-expires based on session lifecycle
+
+### Cold Memory (Neon + pgvector)
+
+- Permanent storage with vector embeddings
+- Semantic similarity search via pgvector
+- Drizzle ORM schema with proper types
+- Idempotent promotion (skips already-stored entities)
+
+### Promotion Service
+
+Moves data from hot to cold storage:
+
+```python
+service = PromotionService(hot=redis, cold=neon, embeddings=pipeline)
+result = service.promote_session("session-001")
+# PromotionResult(promoted_count=5, skipped_count=2)  # frozen
+```
+
+## JadeAgent
+
+The agent wraps the Anthropic client with MCP tool routing:
+
+```python
+from jade.agent.jade_agent import JadeAgent, JadeAgentConfig
+
+agent = JadeAgent(JadeAgentConfig(
+    api_key="sk-ant-...",
+    model="claude-sonnet-4-6",
+    memory_file_path="./memory.jsonl",
+))
+
+# Route tool calls to the correct MCP server
+result = await agent.handle_tool_call("create_entities", {
+    "entities": [{"name": "Alex", "entityType": "Person"}]
+})
+```
+
+## Cloud Deployment
+
+| Service | Purpose | Endpoint |
+|---------|---------|----------|
+| Vercel | API functions | `/api/health`, `/api/graph` |
+| Cloudflare Workers | Edge MCP server | `/health`, `/tools`, `/call` |
+| Neon | PostgreSQL + pgvector | Cold memory storage |
+| Upstash | Redis | Hot session memory |
+| Langfuse | Observability | Trace all agent interactions |
+
+## Observability
+
+All agent interactions are traced via Langfuse:
+
+```python
+from jade.observability.langfuse_tracing import create_langfuse_client
+
+langfuse = create_langfuse_client(config)
+trace = langfuse.trace(name="jade-session", session_id="session-001")
+span = trace.span(name="tool-call", input={"tool": "search_nodes"})
+```
