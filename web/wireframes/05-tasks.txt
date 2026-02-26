@@ -1,0 +1,37 @@
+TASKS  /tasks
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Task Planner                                                    |
+|                                                                  |
+|  [ Describe what you want to build...                          ] |
+|  Model: [Opus] [Sonnet] [Haiku]                   [ Plan ]      |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | PLAN: Add semantic search to graph page        feat | HIGH  | |
+|  |                                                             | |
+|  | Steps:                                                      | |
+|  | 1. Create /api/search route          ~2,400 tokens          | |
+|  | 2. Add search input to /graph        ~1,800 tokens          | |
+|  | 3. Wire embedding pipeline           ~3,200 tokens          | |
+|  |                                                             | |
+|  | Estimated: 7,400 tokens  ~$0.037 (sonnet)                   | |
+|  | Commit: feat(graph): add semantic search                    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  REVIEW                                          verdict: APPROVE|
+|  +------------------------------------------------------------+ |
+|  | Findings:                                                   | |
+|  | [suggestion] Step 2: consider debouncing the search input   | |
+|  | [nit] Step 3: use batch embed for multiple queries          | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Input task description -> get plan with steps, token estimates, cost.
+Review panel shows verdict (approve/revise/reject) + findings with severity.
+Data from POST /api/plan and POST /api/review.
+Types from ts/task/spec.ts (TaskPlan, TaskStep, TaskReview).
+Cost from ts/task/cost.ts (estimateCost, formatCost).

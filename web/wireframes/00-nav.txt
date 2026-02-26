@@ -1,0 +1,8 @@
+NAV — shared across all pages (except /docs which uses fumadocs nav)
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                                  Search  Costs   |
++------------------------------------------------------------------+
+
+Active page is highlighted. Links to all 10 routes.

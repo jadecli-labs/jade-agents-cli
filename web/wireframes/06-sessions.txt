@@ -1,0 +1,38 @@
+SESSIONS  /sessions
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Sessions                                                        |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | ID              | Summary              | TTL    | Promoted  | |
+|  |-----------------|----------------------|--------|-----------|  |
+|  | session-003     | Memory arch discuss  | 42m    |    no     | |
+|  | session-002     | TDD workflow setup   | expired|   yes     | |
+|  | session-001     | Initial scaffolding  | expired|   yes     | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | session-003                                                 | |
+|  |                                                             | |
+|  | Summary: Discussed memory architecture decisions            | |
+|  | TTL: 42 minutes remaining                                   | |
+|  | Promoted: no                          [ Promote to Cold ]   | |
+|  |                                                             | |
+|  | Active Threads:                                             | |
+|  | - pgvector index strategy                                   | |
+|  | - Redis TTL policy for working memory                       | |
+|  |                                                             | |
+|  | Working Memory:                                             | |
+|  | decisions: 2 items                                          | |
+|  | concepts: 3 items                                           | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Click row -> expand detail below.
+Shows TTL countdown, promotion status, active threads, working memory namespaces.
+Data from GET /api/sessions (Neon sessions table + Upstash TTL).
+Promote button calls POST /api/promote/[id].

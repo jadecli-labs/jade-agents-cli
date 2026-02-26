@@ -1,0 +1,30 @@
+DASHBOARD  /dashboard
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Service Health                       Last checked: 12s ago      |
+|                                       [ Refresh ]                |
+|                                                                  |
+|  +--------------------------+  +--------------------------+      |
+|  | Neon PostgreSQL      [*] |  | Upstash Redis        [*] |      |
+|  | configured               |  | configured               |      |
+|  | Cold memory, pgvector    |  | Hot session memory       |      |
+|  +--------------------------+  +--------------------------+      |
+|                                                                  |
+|  +--------------------------+  +--------------------------+      |
+|  | Anthropic API        [*] |  | Langfuse             [x] |      |
+|  | configured               |  | not_configured           |      |
+|  | Claude model access      |  | Observability tracing    |      |
+|  +--------------------------+  +--------------------------+      |
+|                                                                  |
+|  [*] green   [x] red                                            |
+|                                                                  |
+|  API Endpoints                                                   |
+|  GET /api/health .............. 200  23ms                        |
+|  GET /api/graph ............... 200 142ms                        |
+|                                                                  |
++------------------------------------------------------------------+
+
+Calls GET /api/health on load. Auto-refreshes. 4 service cards + endpoint latency.

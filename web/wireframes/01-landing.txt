@@ -1,0 +1,27 @@
+LANDING  /
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|                      Jade Agents CLI                             |
+|                                                                  |
+|        Bilateral learning partnership AI agent system.           |
+|                                                                  |
+|           [ Documentation ]    [ Chat with Jade ]                |
+|                                                                  |
+|   +----------+  +----------+  +----------+  +----------+        |
+|   |   288    |  |   9+4    |  |    2     |  |   live   |        |
+|   |  Tests   |  |MCP Tools |  |Languages |  | Services |        |
+|   +----------+  +----------+  +----------+  +----------+        |
+|                                                                  |
+|   +---------------------------+  +--------------------------+    |
+|   | Knowledge Graph           |  | Service Health           |    |
+|   | Explore entities,         |  | Neon, Upstash, Langfuse, |    |
+|   | decisions, relations      |  | Anthropic status         |    |
+|   | [ Open Graph ]            |  | [ Open Dashboard ]       |    |
+|   +---------------------------+  +--------------------------+    |
+|                                                                  |
++------------------------------------------------------------------+
+
+Hero + stats + two feature cards linking to /graph and /dashboard.

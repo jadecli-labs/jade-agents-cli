@@ -1,250 +1,411 @@
 # Jade Web App — Wireframes
 
-Wireframes for PR #7: feat(web): Jade Vercel web app
+PR #7: feat(web): Jade Vercel web app
 
-## Navigation (shared across all pages)
+## Nav
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                                  Search  Costs   |
 +------------------------------------------------------------------+
 ```
 
-Fumadocs nav stays for `/docs/*`. All other pages use a minimal shared nav bar.
+Fumadocs keeps its own nav for `/docs/*`. Everything else uses this bar.
 
 ---
 
-## 1. Landing Page  `/`
-
-Update existing page. Add nav links to new sections. Keep stats.
+## 1. Landing  `/`
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
 |                                                                  |
-|                     Jade Agents CLI                              |
+|                      Jade Agents CLI                             |
 |                                                                  |
-|          Bilateral learning partnership AI agent system.          |
-|     Dual Python + TypeScript with MCP tools and knowledge        |
-|                    graph memory.                                  |
+|        Bilateral learning partnership AI agent system.           |
 |                                                                  |
-|            [ Documentation ]    [ Chat with Jade ]               |
+|           [ Documentation ]    [ Chat with Jade ]                |
 |                                                                  |
-|   +------------+  +------------+  +----------+  +-----------+    |
-|   |    288     |  |    9+4     |  |    2     |  |   live    |    |
-|   |   Tests    |  | MCP Tools  |  | Languages|  |  Services |    |
-|   +------------+  +------------+  +----------+  +-----------+    |
+|   +----------+  +----------+  +----------+  +----------+        |
+|   |   288    |  |   9+4    |  |    2     |  |   live   |        |
+|   |  Tests   |  |MCP Tools |  |Languages |  | Services |        |
+|   +----------+  +----------+  +----------+  +----------+        |
 |                                                                  |
-|   +---------------------------+  +---------------------------+   |
-|   |  Knowledge Graph          |  |  Service Health           |   |
-|   |  Explore entities,        |  |  Neon, Upstash, Langfuse, |   |
-|   |  decisions, and relations |  |  Anthropic connectivity   |   |
-|   |  [ Open Graph Explorer ]  |  |  [ Open Dashboard ]       |   |
-|   +---------------------------+  +---------------------------+   |
+|   +---------------------------+  +--------------------------+    |
+|   | Knowledge Graph           |  | Service Health           |    |
+|   | Explore entities,         |  | Neon, Upstash, Langfuse, |    |
+|   | decisions, relations      |  | Anthropic status         |    |
+|   | [ Open Graph ]            |  | [ Open Dashboard ]       |    |
+|   +---------------------------+  +--------------------------+    |
 |                                                                  |
 +------------------------------------------------------------------+
 ```
 
 ---
 
-## 2. Service Dashboard  `/dashboard`
-
-Live health status. Calls `/api/health` on load + auto-refresh.
+## 2. Dashboard  `/dashboard`
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
 |                                                                  |
-|  Service Health                          Last checked: 12s ago   |
-|                                          [ Refresh ]             |
+|  Service Health                       Last checked: 12s ago      |
+|                                       [ Refresh ]                |
 |                                                                  |
-|  +----------------------------+  +----------------------------+  |
-|  |  Neon PostgreSQL        [*]|  |  Upstash Redis          [*]|  |
-|  |  Status: configured        |  |  Status: configured        |  |
-|  |  Cold memory, pgvector     |  |  Hot session memory        |  |
-|  +----------------------------+  +----------------------------+  |
+|  +--------------------------+  +--------------------------+      |
+|  | Neon PostgreSQL      [*] |  | Upstash Redis        [*] |      |
+|  | configured               |  | configured               |      |
+|  | Cold memory, pgvector    |  | Hot session memory       |      |
+|  +--------------------------+  +--------------------------+      |
 |                                                                  |
-|  +----------------------------+  +----------------------------+  |
-|  |  Anthropic API          [*]|  |  Langfuse              [*]|  |
-|  |  Status: configured        |  |  Status: not_configured    |  |
-|  |  Claude model access       |  |  Observability tracing     |  |
-|  +----------------------------+  +----------------------------+  |
+|  +--------------------------+  +--------------------------+      |
+|  | Anthropic API        [*] |  | Langfuse             [x] |      |
+|  | configured               |  | not_configured           |      |
+|  | Claude model access      |  | Observability tracing    |      |
+|  +--------------------------+  +--------------------------+      |
 |                                                                  |
-|  [*] = green dot (configured) or red dot (not_configured)        |
+|  [*] green   [x] red                                            |
 |                                                                  |
-|  +------------------------------------------------------------+  |
-|  |  API Endpoints                                              |  |
-|  |                                                             |  |
-|  |  GET /api/health .................. 200 OK      23ms        |  |
-|  |  GET /api/graph ................... 200 OK     142ms        |  |
-|  +------------------------------------------------------------+  |
+|  API Endpoints                                                   |
+|  GET /api/health .............. 200  23ms                        |
+|  GET /api/graph ............... 200 142ms                        |
 |                                                                  |
 +------------------------------------------------------------------+
 ```
 
 ---
 
-## 3. Knowledge Graph Explorer  `/graph`
-
-Two-panel layout: entity list (filterable) + detail panel.
+## 3. Graph  `/graph`
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
 |                                                                  |
-|  Knowledge Graph                              47 entities found  |
+|  Knowledge Graph                           47 entities           |
 |                                                                  |
-|  Filter: [ Search entities...          ]                         |
-|  Type:   [All] [Person] [Decision] [Concept] [Tool] [Session]   |
+|  [ Search entities...       ]                                    |
+|  [All] [Person] [Decision] [Concept] [Tool] [Session] [Goal]    |
 |                                                                  |
-|  +------------------------+-+------------------------------------+|
-|  | ENTITIES               | |  DETAIL                           ||
-|  |                        | |                                    ||
-|  | * Alex            [Per]| |  Alex                              ||
-|  |   Jade            [Too]| |  Type: Person                      ||
-|  |   Use pgvector    [Dec]| |                                    ||
-|  |   MCP Protocol    [Con]| |  Observations:                     ||
-|  |   session-001     [Ses]| |  - Project lead for Jade            ||
-|  |   Prompt Caching  [Dec]| |  - Prefers fail-fast patterns       ||
-|  |   Redis TTL       [Con]| |  - Uses TDD workflow                ||
-|  |   Claude SDK      [Too]| |                                    ||
-|  |   ...                  | |  Relations:                         ||
-|  |                        | |  Alex --made_decision--> Use pgvec  ||
-|  |                        | |  Alex --uses_tool--> Jade            ||
-|  |                        | |  Alex --uses_tool--> Claude SDK      ||
-|  |                        | |  Alex --participated_in--> session   ||
-|  |                        | |                                    ||
-|  +------------------------+-+------------------------------------+|
+|  +---------------------+  +----------------------------------+  |
+|  | ENTITIES             |  | DETAIL                          |  |
+|  |                      |  |                                  |  |
+|  | > Alex          Per  |  | Alex                            |  |
+|  |   Jade          Too  |  | Type: Person                    |  |
+|  |   Use pgvector  Dec  |  |                                  |  |
+|  |   MCP Protocol  Con  |  | Observations:                   |  |
+|  |   session-001   Ses  |  | - Project lead for Jade         |  |
+|  |   Prompt Cache  Dec  |  | - Prefers fail-fast patterns    |  |
+|  |   Redis TTL     Con  |  | - Uses TDD workflow             |  |
+|  |   Claude SDK    Too  |  |                                  |  |
+|  |   ...                |  | Relations:                       |  |
+|  |                      |  | -> made_decision -> Use pgvector |  |
+|  |                      |  | -> uses_tool -> Jade             |  |
+|  |                      |  | -> uses_tool -> Claude SDK       |  |
+|  |                      |  | -> participated_in -> session-001|  |
+|  +---------------------+  +----------------------------------+  |
 |                                                                  |
 +------------------------------------------------------------------+
 ```
 
-**Interaction:**
-- Click entity in left panel -> shows detail on right
-- Type filter narrows entity list by name/observation text
-- Type badges filter by entity type
-- Relations are clickable (navigate to related entity)
+Click entity left -> detail right. Type badges filter. Relations are clickable.
 
 ---
 
-## 4. Agent Chat  `/chat`
-
-Streaming chat with Jade via Vercel AI SDK `useChat`. Tool calls shown inline.
+## 4. Tools  `/tools`
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  MCP Tools                                         13 available  |
+|                                                                  |
+|  MEMORY SERVER (9)                                               |
+|  +------------------------------------------------------------+ |
+|  | create_entities                                             | |
+|  | Create new entities in the knowledge graph.                 | |
+|  | Params: entities (required) — list of {name, entityType,    | |
+|  |         observations}                                       | |
+|  +------------------------------------------------------------+ |
+|  | create_relations                                            | |
+|  | Create relations between entities.                          | |
+|  | Params: relations (required) — list of {from, to,           | |
+|  |         relationType}                                       | |
+|  +------------------------------------------------------------+ |
+|  | search_nodes                                                | |
+|  | Search for entities matching a query string.                | |
+|  | Params: query (required) — string                           | |
+|  +------------------------------------------------------------+ |
+|  | read_graph  |  open_nodes  |  add_observations              | |
+|  | delete_entities  |  delete_observations  |  delete_relations | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  JADE SERVER (4)                                                 |
+|  +------------------------------------------------------------+ |
+|  | record_decision                                             | |
+|  | Create decision entity + person + session + relations.      | |
+|  | Params: decisionName (required), rationale, decidedBy,      | |
+|  |         sessionId                                           | |
+|  +------------------------------------------------------------+ |
+|  | recall_context  |  update_hot_memory  |  log_insight        | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Static page. Data from `getJadeToolDefinitions()`. Grouped by server.
+
+---
+
+## 5. Tasks  `/tasks`
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Task Planner                                                    |
+|                                                                  |
+|  [ Describe what you want to build...                          ] |
+|  Model: [Opus] [Sonnet] [Haiku]                   [ Plan ]      |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | PLAN: Add semantic search to graph page        feat | HIGH  | |
+|  |                                                             | |
+|  | Steps:                                                      | |
+|  | 1. Create /api/search route          ~2,400 tokens          | |
+|  | 2. Add search input to /graph        ~1,800 tokens          | |
+|  | 3. Wire embedding pipeline           ~3,200 tokens          | |
+|  |                                                             | |
+|  | Estimated: 7,400 tokens  ~$0.037 (sonnet)                   | |
+|  | Commit: feat(graph): add semantic search                    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  REVIEW                                          verdict: APPROVE|
+|  +------------------------------------------------------------+ |
+|  | Findings:                                                   | |
+|  | [suggestion] Step 2: consider debouncing the search input   | |
+|  | [nit] Step 3: use batch embed for multiple queries          | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Input a task description -> get a plan with steps, token estimates, cost.
+Review panel shows verdict + findings with severity.
+
+---
+
+## 6. Sessions  `/sessions`
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Sessions                                                        |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | ID              | Summary              | TTL    | Promoted  | |
+|  |-----------------|----------------------|--------|-----------|  |
+|  | session-003     | Memory arch discuss  | 42m    |    no     | |
+|  | session-002     | TDD workflow setup   | expired|   yes     | |
+|  | session-001     | Initial scaffolding  | expired|   yes     | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | session-003                                                 | |
+|  |                                                             | |
+|  | Summary: Discussed memory architecture decisions            | |
+|  | TTL: 42 minutes remaining                                   | |
+|  | Promoted: no                          [ Promote to Cold ]   | |
+|  |                                                             | |
+|  | Active Threads:                                             | |
+|  | - pgvector index strategy                                   | |
+|  | - Redis TTL policy for working memory                       | |
+|  |                                                             | |
+|  | Working Memory:                                             | |
+|  | decisions: 2 items                                          | |
+|  | concepts: 3 items                                           | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Click row -> expand detail. Shows TTL countdown, promotion status, active threads,
+working memory namespaces.
+
+---
+
+## 7. Chat  `/chat`
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
 |                                                                  |
 |  Chat with Jade                                                  |
 |                                                                  |
-|  +------------------------------------------------------------+  |
-|  |                                                            |  |
-|  |  JADE  Hi! I'm Jade, your learning partner. I have        |  |
-|  |        access to the knowledge graph and can record        |  |
-|  |        decisions, recall context, and log insights.        |  |
-|  |                                                            |  |
-|  |  YOU   What decisions have we made about memory?           |  |
-|  |                                                            |  |
-|  |  JADE  Let me search the knowledge graph.                  |  |
-|  |                                                            |  |
-|  |        +------------------------------------------------+  |  |
-|  |        | Tool: recall_context                           |  |  |
-|  |        | Input: { "topic": "memory" }                   |  |  |
-|  |        | Result: 3 entities found                       |  |  |
-|  |        +------------------------------------------------+  |  |
-|  |                                                            |  |
-|  |        Based on the knowledge graph, here are the          |  |
-|  |        memory-related decisions:                           |  |
-|  |                                                            |  |
-|  |        1. **Use pgvector** — Chose Neon pgvector for       |  |
-|  |           cold storage over Pinecone (cost, SQL access)    |  |
-|  |        2. **Redis TTL** — Session data expires after       |  |
-|  |           24h to prevent stale context                     |  |
-|  |                                                            |  |
-|  +------------------------------------------------------------+  |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  |  JADE  Hi! I'm Jade, your learning partner. I have         | |
+|  |        access to the knowledge graph and can record         | |
+|  |        decisions, recall context, and log insights.         | |
+|  |                                                             | |
+|  |  YOU   What decisions have we made about memory?            | |
+|  |                                                             | |
+|  |  JADE  Let me search the knowledge graph.                   | |
+|  |                                                             | |
+|  |        +--------------------------------------------------+ | |
+|  |        | recall_context                                    | | |
+|  |        | { "topic": "memory" }                             | | |
+|  |        | 3 entities found                                  | | |
+|  |        +--------------------------------------------------+ | |
+|  |                                                             | |
+|  |        Here are the memory-related decisions:               | |
+|  |                                                             | |
+|  |        1. Use pgvector — Neon pgvector for cold storage     | |
+|  |        2. Redis TTL — Session data expires after 24h        | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
 |                                                                  |
-|  +------------------------------------------------------------+  |
-|  | Ask Jade anything...                              [ Send ] |  |
-|  +------------------------------------------------------------+  |
+|  +------------------------------------------------------------+ |
+|  | Ask Jade anything...                             [ Send ]   | |
+|  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
 ```
 
-**Interaction:**
-- Messages stream in real-time (Vercel AI SDK `useChat`)
-- Tool calls appear as collapsible cards between message chunks
-- Tool cards show: tool name, input params, result summary
-- Chat history persists during session (client-side state)
+Streaming via Vercel AI SDK `useChat`. Tool calls inline as collapsible cards.
 
 ---
 
-## 5. Traces  `/traces`
-
-Read-only Langfuse trace viewer. Session list + trace detail.
+## 8. Traces  `/traces`
 
 ```
 +------------------------------------------------------------------+
-| JADE                  Docs  Dashboard  Graph  Chat  Traces       |
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
 |                                                                  |
 |  Agent Traces                                                    |
 |                                                                  |
-|  +------------------------------------------------------------+  |
-|  | Session             | Started      | Tokens  | Latency     |  |
-|  |------------------------------------------------------------|  |
-|  | session-003         | 2 hours ago  |  4,230  |  3.2s       |  |
-|  | session-002         | yesterday    | 12,841  |  8.7s       |  |
-|  | session-001         | 2 days ago   |  8,102  |  5.1s       |  |
-|  +------------------------------------------------------------+  |
+|  +------------------------------------------------------------+ |
+|  | Session         | Started      | Tokens  | Latency          | |
+|  |-----------------|--------------|---------|------------------|  |
+|  | session-003     | 2 hours ago  |  4,230  |  3.2s            | |
+|  | session-002     | yesterday    | 12,841  |  8.7s            | |
+|  | session-001     | 2 days ago   |  8,102  |  5.1s            | |
+|  +------------------------------------------------------------+ |
 |                                                                  |
-|  +------------------------------------------------------------+  |
-|  |  session-003  (2 hours ago)                                |  |
-|  |                                                            |  |
-|  |  Trace Timeline:                                           |  |
-|  |                                                            |  |
-|  |  [0.0s] jade-session --------------------------------      |  |
-|  |    [0.1s] tool-call: search_nodes --------  (420ms)        |  |
-|  |    [0.6s] tool-call: record_decision -----  (380ms)        |  |
-|  |    [1.2s] tool-call: update_hot_memory ---  (210ms)        |  |
-|  |    [1.5s] llm-generation -----------------  (1.7s)         |  |
-|  |                                                            |  |
-|  |  Token Usage:                                              |  |
-|  |  Input: 2,840  |  Output: 1,390  |  Total: 4,230          |  |
-|  |                                                            |  |
-|  |  Entities Created:  2 (Decision, Concept)                  |  |
-|  |  Relations Created: 3                                      |  |
-|  +------------------------------------------------------------+  |
+|  +------------------------------------------------------------+ |
+|  | session-003                                                 | |
+|  |                                                             | |
+|  | [0.0s] jade-session ---------------------------             | |
+|  |   [0.1s] search_nodes --------  420ms                      | |
+|  |   [0.6s] record_decision -----  380ms                      | |
+|  |   [1.2s] update_hot_memory ---  210ms                      | |
+|  |   [1.5s] llm-generation ------  1.7s                       | |
+|  |                                                             | |
+|  | Input: 2,840  Output: 1,390  Total: 4,230                  | |
+|  | Entities: 2  Relations: 3                                   | |
+|  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
 ```
 
-**Interaction:**
-- Click session row to expand trace detail below
-- Trace timeline shows spans as horizontal bars (proportional to duration)
-- Token usage breakdown per session
-- Links to entities created during the session (navigates to `/graph`)
+Click row -> expand trace timeline. Links to entities in `/graph`.
+
+---
+
+## 9. Search  `/search`
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Semantic Search                                                 |
+|                                                                  |
+|  [ How did we decide on the memory architecture?             ]   |
+|                                                       [ Search ] |
+|                                                                  |
+|  3 results                                                       |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Use pgvector                                    Decision    | |
+|  | Score: 0.92                                                 | |
+|  | Chose Neon pgvector for cold storage over Pinecone          | |
+|  +------------------------------------------------------------+ |
+|  | Redis TTL                                       Decision    | |
+|  | Score: 0.87                                                 | |
+|  | Session data expires after 24h to prevent stale context     | |
+|  +------------------------------------------------------------+ |
+|  | Hot-Cold Promotion                              Concept     | |
+|  | Score: 0.81                                                 | |
+|  | Embed entities from Redis, store in Neon pgvector           | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Natural language query -> embedding -> cosine similarity against cold memory.
+Results show entity name, type badge, similarity score, first observation.
+
+---
+
+## 10. Costs  `/costs`
+
+```
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  API Costs                                                       |
+|                                                                  |
+|  MODEL PRICING (per 1M tokens)                                   |
+|  +------------------------------------------------------------+ |
+|  | Model   | Input  | Output | Cache Write | Cache Read        | |
+|  |---------|--------|--------|-------------|------------------- | |
+|  | Opus    | $15    | $75    | $18.75      | $1.50              | |
+|  | Sonnet  | $3     | $15    | $3.75       | $0.30              | |
+|  | Haiku   | $1     | $5     | $1.25       | $0.10              | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  SESSION COSTS                                                   |
+|  +------------------------------------------------------------+ |
+|  | Session         | Model  | Tokens  | Cost                   | |
+|  |-----------------|--------|---------|----------------------- | |
+|  | session-003     | sonnet |  4,230  | $0.042                 | |
+|  | session-002     | opus   | 12,841  | $0.89                  | |
+|  | session-001     | sonnet |  8,102  | $0.081                 | |
+|  |-----------------|--------|---------|----------------------- | |
+|  | Total           |        | 25,173  | $1.01                  | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+```
+
+Static pricing table from `PRICING` in `ts/task/cost.ts`.
+Session costs computed via `calculateCost()` + `formatUsageSummary()`.
 
 ---
 
 ## Page Summary
 
-| Route | Purpose | Data Source | Priority |
-|-------|---------|-------------|----------|
-| `/` | Landing + navigation hub | Static | Phase 1 |
-| `/dashboard` | Service health monitoring | `GET /api/health` | Phase 2 |
-| `/graph` | Knowledge graph exploration | `GET /api/graph` | Phase 3 |
-| `/chat` | Agent conversation | `POST /api/chat` (streaming) | Phase 4 |
-| `/traces` | Observability viewer | Langfuse API (read-only) | Phase 5 |
-| `/docs/*` | Documentation (existing) | MDX via fumadocs | Done |
-
-## Shared Components
-
-- `NavBar` — top nav with active page indicator
-- `StatusDot` — green/red circle for configured/not_configured
-- `ToolCallCard` — collapsible card showing MCP tool invocation
-- `EntityBadge` — colored badge for entity types (Person=blue, Decision=amber, etc.)
-- `RelationLink` — clickable relation that navigates to target entity
+| Route | Purpose | Data Source |
+|-------|---------|-------------|
+| `/` | Landing | Static |
+| `/dashboard` | Service health | `GET /api/health` |
+| `/graph` | Knowledge graph | `GET /api/graph` |
+| `/tools` | MCP tool reference | `getJadeToolDefinitions()` |
+| `/tasks` | Task planning + review | `POST /api/plan`, `POST /api/review` |
+| `/sessions` | Session browser | `GET /api/sessions` |
+| `/chat` | Agent conversation | `POST /api/chat` (streaming) |
+| `/traces` | Trace viewer | Langfuse API |
+| `/search` | Semantic search | `POST /api/search` |
+| `/costs` | Pricing + spend | `PRICING` + `calculateCost()` |
+| `/docs/*` | Documentation | MDX via fumadocs |

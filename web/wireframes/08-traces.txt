@@ -1,0 +1,35 @@
+TRACES  /traces
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Agent Traces                                                    |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Session         | Started      | Tokens  | Latency          | |
+|  |-----------------|--------------|---------|------------------|  |
+|  | session-003     | 2 hours ago  |  4,230  |  3.2s            | |
+|  | session-002     | yesterday    | 12,841  |  8.7s            | |
+|  | session-001     | 2 days ago   |  8,102  |  5.1s            | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | session-003                                                 | |
+|  |                                                             | |
+|  | [0.0s] jade-session ---------------------------             | |
+|  |   [0.1s] search_nodes --------  420ms                      | |
+|  |   [0.6s] record_decision -----  380ms                      | |
+|  |   [1.2s] update_hot_memory ---  210ms                      | |
+|  |   [1.5s] llm-generation ------  1.7s                       | |
+|  |                                                             | |
+|  | Input: 2,840  Output: 1,390  Total: 4,230                  | |
+|  | Entities: 2  Relations: 3                                   | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Click row -> expand trace timeline below.
+Spans as horizontal bars proportional to duration.
+Token breakdown per session. Links to entities in /graph.
+Data from Langfuse API (read-only).

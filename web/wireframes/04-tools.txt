@@ -1,0 +1,42 @@
+TOOLS  /tools
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  MCP Tools                                         13 available  |
+|                                                                  |
+|  MEMORY SERVER (9)                                               |
+|  +------------------------------------------------------------+ |
+|  | create_entities                                             | |
+|  | Create new entities in the knowledge graph.                 | |
+|  | Params: entities (required) — list of {name, entityType,    | |
+|  |         observations}                                       | |
+|  +------------------------------------------------------------+ |
+|  | create_relations                                            | |
+|  | Create relations between entities.                          | |
+|  | Params: relations (required) — list of {from, to,           | |
+|  |         relationType}                                       | |
+|  +------------------------------------------------------------+ |
+|  | search_nodes                                                | |
+|  | Search for entities matching a query string.                | |
+|  | Params: query (required) — string                           | |
+|  +------------------------------------------------------------+ |
+|  | read_graph  |  open_nodes  |  add_observations              | |
+|  | delete_entities  |  delete_observations  |  delete_relations | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  JADE SERVER (4)                                                 |
+|  +------------------------------------------------------------+ |
+|  | record_decision                                             | |
+|  | Create decision entity + person + session + relations.      | |
+|  | Params: decisionName (required), rationale, decidedBy,      | |
+|  |         sessionId                                           | |
+|  +------------------------------------------------------------+ |
+|  | recall_context  |  update_hot_memory  |  log_insight        | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Static page. Data from getJadeToolDefinitions(). Grouped by server.
+Each tool shows name, description, required params from inputSchema.

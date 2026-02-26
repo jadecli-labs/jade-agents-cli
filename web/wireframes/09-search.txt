@@ -1,0 +1,33 @@
+SEARCH  /search
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Semantic Search                                                 |
+|                                                                  |
+|  [ How did we decide on the memory architecture?             ]   |
+|                                                       [ Search ] |
+|                                                                  |
+|  3 results                                                       |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Use pgvector                                    Decision    | |
+|  | Score: 0.92                                                 | |
+|  | Chose Neon pgvector for cold storage over Pinecone          | |
+|  +------------------------------------------------------------+ |
+|  | Redis TTL                                       Decision    | |
+|  | Score: 0.87                                                 | |
+|  | Session data expires after 24h to prevent stale context     | |
+|  +------------------------------------------------------------+ |
+|  | Hot-Cold Promotion                              Concept     | |
+|  | Score: 0.81                                                 | |
+|  | Embed entities from Redis, store in Neon pgvector           | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Natural language query -> embed -> cosine similarity against cold memory.
+Results: entity name, type badge, similarity score, first observation.
+Click result -> navigate to entity in /graph.
+Data from POST /api/search (EmbeddingPipeline + ColdMemoryClient.semanticSearch).
