@@ -185,3 +185,8 @@ def create_jade_server(
         )
 
     return mcp
+
+
+if __name__ == "__main__":
+    server = create_jade_server()
+    server.run()

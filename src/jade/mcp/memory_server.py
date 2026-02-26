@@ -197,3 +197,8 @@ def create_memory_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
         return json.dumps({"entities": matches, "relations": related})
 
     return mcp
+
+
+if __name__ == "__main__":
+    server = create_memory_server()
+    server.run()
