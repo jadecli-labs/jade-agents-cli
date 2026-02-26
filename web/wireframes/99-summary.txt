@@ -1,0 +1,18 @@
+PAGE SUMMARY
+
+| Route        | Purpose                | Data Source                       | Blocked By         |
+|--------------|------------------------|-----------------------------------|---------------------|
+| /            | Landing                | Static                            | —                   |
+| /dashboard   | Service health         | GET /api/health                   | —                   |
+| /graph       | Knowledge graph        | GET /api/graph                    | Drizzle migrations  |
+| /tools       | MCP tool reference     | getJadeToolDefinitions()          | —                   |
+| /tasks       | Task planning + review | POST /api/plan, POST /api/review  | —                   |
+| /sessions    | Session browser        | GET /api/sessions                 | Upstash route       |
+| /chat        | Agent conversation     | POST /api/chat (streaming)        | AI SDK route        |
+| /traces      | Trace viewer           | Langfuse API                      | Langfuse route      |
+| /search      | Semantic search        | POST /api/search                  | Embedding pipeline  |
+| /costs       | Pricing + spend        | PRICING + calculateCost()         | —                   |
+| /analytics   | Charts + metrics       | CubeClient.query()                | Cube.js setup       |
+| /actions     | Live agent feed + ROTS | Agent SDK recorder                | Agent SDK wrapper   |
+| /workers     | Worker catalog         | Worker YAML configs               | Worker configs      |
+| /docs/*      | Documentation          | MDX via fumadocs                  | —                   |

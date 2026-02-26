@@ -1,0 +1,34 @@
+GRAPH  /graph
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Knowledge Graph                           47 entities           |
+|                                                                  |
+|  [ Search entities...       ]                                    |
+|  [All] [Person] [Decision] [Concept] [Tool] [Session] [Goal]    |
+|                                                                  |
+|  +---------------------+  +----------------------------------+  |
+|  | ENTITIES             |  | DETAIL                          |  |
+|  |                      |  |                                  |  |
+|  | > Alex          Per  |  | Alex                            |  |
+|  |   Jade          Too  |  | Type: Person                    |  |
+|  |   Use pgvector  Dec  |  |                                  |  |
+|  |   MCP Protocol  Con  |  | Observations:                   |  |
+|  |   session-001   Ses  |  | - Project lead for Jade         |  |
+|  |   Prompt Cache  Dec  |  | - Prefers fail-fast patterns    |  |
+|  |   Redis TTL     Con  |  | - Uses TDD workflow             |  |
+|  |   Claude SDK    Too  |  |                                  |  |
+|  |   ...                |  | Relations:                       |  |
+|  |                      |  | -> made_decision -> Use pgvector |  |
+|  |                      |  | -> uses_tool -> Jade             |  |
+|  |                      |  | -> uses_tool -> Claude SDK       |  |
+|  |                      |  | -> participated_in -> session-001|  |
+|  +---------------------+  +----------------------------------+  |
+|                                                                  |
++------------------------------------------------------------------+
+
+Two-panel. Click entity left -> detail right.
+Type badges filter list. Relations are clickable links to other entities.
+Data from GET /api/graph.

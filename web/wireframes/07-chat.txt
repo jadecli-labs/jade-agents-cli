@@ -1,0 +1,40 @@
+CHAT  /chat
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
++------------------------------------------------------------------+
+|                                                                  |
+|  Chat with Jade                                                  |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  |  JADE  Hi! I'm Jade, your learning partner. I have         | |
+|  |        access to the knowledge graph and can record         | |
+|  |        decisions, recall context, and log insights.         | |
+|  |                                                             | |
+|  |  YOU   What decisions have we made about memory?            | |
+|  |                                                             | |
+|  |  JADE  Let me search the knowledge graph.                   | |
+|  |                                                             | |
+|  |        +--------------------------------------------------+ | |
+|  |        | recall_context                                    | | |
+|  |        | { "topic": "memory" }                             | | |
+|  |        | 3 entities found                                  | | |
+|  |        +--------------------------------------------------+ | |
+|  |                                                             | |
+|  |        Here are the memory-related decisions:               | |
+|  |                                                             | |
+|  |        1. Use pgvector — Neon pgvector for cold storage     | |
+|  |        2. Redis TTL — Session data expires after 24h        | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Ask Jade anything...                             [ Send ]   | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Streaming via Vercel AI SDK useChat. Tool calls inline as collapsible cards.
+Cards show: tool name, input params, result summary.
+Data from POST /api/chat (streamText with MCP tools).

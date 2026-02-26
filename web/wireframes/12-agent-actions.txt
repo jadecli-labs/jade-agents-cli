@@ -1,0 +1,43 @@
+AGENT ACTIONS  /actions
+
+Unlocked by: Agent SDK wrapper (Claude Agent SDK integration)
+
++------------------------------------------------------------------+
+| JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                   Search  Costs  Analytics  Actions|
++------------------------------------------------------------------+
+|                                                                  |
+|  Live Agent Actions                                              |
+|                                                                  |
+|  +------------------------------------------------------------+ |
+|  | Time     | Action              | Tokens | Cost    | Session | |
+|  |----------|---------------------|--------|---------|---------|  |
+|  | 10:42:03 | record_decision     |  1,240 | $0.012  | ses-003 | |
+|  | 10:41:58 | search_nodes        |    820 | $0.008  | ses-003 | |
+|  | 10:41:51 | llm-generate        |  2,100 | $0.021  | ses-003 | |
+|  | 10:40:12 | recall_context      |    640 | $0.006  | ses-003 | |
+|  | 10:39:45 | create_entities     |    980 | $0.010  | ses-003 | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  ROTS (Return on Token Spend)                                    |
+|  +------------------------------------------------------------+ |
+|  |                                                             | |
+|  | Entities created per $1:     142                            | |
+|  | Decisions recorded per $1:    38                            | |
+|  | Sessions completed per $1:    12                            | |
+|  |                                                             | |
+|  | Total spend today:       $1.24                              | |
+|  | Total spend this week:   $8.71                              | |
+|  |                                                             | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
+|  ACTIVE SESSIONS                                                 |
+|  +------------------------------------------------------------+ |
+|  | ses-003  | Memory arch  | 42m TTL | 12 actions | $0.057    | |
+|  +------------------------------------------------------------+ |
+|                                                                  |
++------------------------------------------------------------------+
+
+Live action feed (most recent first). ROTS metrics panel.
+Active sessions with running cost totals.
+Data from Agent SDK action recorder + token/cost metadata.
