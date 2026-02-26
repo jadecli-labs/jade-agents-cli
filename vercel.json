@@ -6,10 +6,10 @@
   "outputDirectory": ".",
   "functions": {
     "api/**/*.ts": {
-      "runtime": "@vercel/node@latest"
+      "runtime": "@vercel/node@3.2.0"
     },
     "api/**/*.py": {
-      "runtime": "@vercel/python@latest"
+      "runtime": "@vercel/python@4.7.1"
     }
   },
   "rewrites": [
