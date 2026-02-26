@@ -27,7 +27,7 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Comment on PR with branch info
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           BRANCH_ID: ${{ steps.branch.outputs.branch_id }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
