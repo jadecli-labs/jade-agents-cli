@@ -208,3 +208,138 @@ class TestMemoryServerPersistence:
         result = await server2.call_tool("search_nodes", {"query": "Survivor"})
         result_text = str(result)
         assert "Survivor" in result_text
+
+
+class TestCorruptJSONLRecovery:
+    """C1: Corrupt lines in JSONL must not kill the entire load."""
+
+    @pytest.mark.asyncio
+    async def test_corrupt_line_skipped_valid_lines_loaded(self, memory_file: str) -> None:
+        """A bad JSON line between two valid lines should be skipped."""
+        import json
+
+        # Write a JSONL file with a corrupt line in the middle
+        with open(memory_file, "w", encoding="utf-8") as f:
+            f.write(
+                json.dumps({"type": "entity", "name": "Good1", "entityType": "Concept", "observations": ["ok"]}) + "\n"
+            )
+            f.write("NOT_VALID_JSON_AT_ALL\n")
+            f.write(
+                json.dumps({"type": "entity", "name": "Good2", "entityType": "Concept", "observations": ["also ok"]})
+                + "\n"
+            )
+
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        result = await server.call_tool("read_graph", {})
+        result_text = str(result)
+        assert "Good1" in result_text
+        assert "Good2" in result_text
+
+    @pytest.mark.asyncio
+    async def test_all_corrupt_lines_results_in_empty_graph(self, memory_file: str) -> None:
+        with open(memory_file, "w", encoding="utf-8") as f:
+            f.write("bad line 1\n")
+            f.write("{not json\n")
+
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        result = await server.call_tool("read_graph", {})
+        result_text = str(result)
+        assert '"entities": []' in result_text
+
+
+class TestObservationMergeOrder:
+    """C3: Observation merging must preserve insertion order, not scramble via set()."""
+
+    @pytest.mark.asyncio
+    async def test_merge_preserves_insertion_order(self, memory_file: str) -> None:
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        await server.call_tool(
+            "create_entities",
+            {"entities": [{"name": "OrderTest", "entityType": "Concept", "observations": ["alpha", "beta"]}]},
+        )
+        await server.call_tool(
+            "add_observations",
+            {"observations": [{"entityName": "OrderTest", "contents": ["beta", "gamma"]}]},
+        )
+        result = await server.call_tool("open_nodes", {"names": ["OrderTest"]})
+        result_text = str(result)
+        # After merge: ["alpha", "beta", "gamma"] — beta deduplicated, order preserved
+        alpha_pos = result_text.index("alpha")
+        beta_pos = result_text.index("beta")
+        gamma_pos = result_text.index("gamma")
+        assert alpha_pos < beta_pos < gamma_pos
+
+    @pytest.mark.asyncio
+    async def test_duplicate_observations_removed(self, memory_file: str) -> None:
+        import json
+
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        await server.call_tool(
+            "create_entities",
+            {"entities": [{"name": "DupTest", "entityType": "Concept", "observations": ["x", "y"]}]},
+        )
+        await server.call_tool(
+            "add_observations",
+            {"observations": [{"entityName": "DupTest", "contents": ["x", "y", "z"]}]},
+        )
+        result = await server.call_tool("open_nodes", {"names": ["DupTest"]})
+        # Extract JSON from FastMCP tuple: result[1]["result"] is the raw JSON string
+        parsed = json.loads(result[1]["result"])
+        obs = parsed["entities"][0]["observations"]
+        assert len(obs) == 3
+        assert obs == ["x", "y", "z"]
+
+
+class TestAddObservationsNotFound:
+    """H6: add_observations must report entities that don't exist."""
+
+    @pytest.mark.asyncio
+    async def test_notfound_returned_for_missing_entity(self, memory_file: str) -> None:
+        import json
+
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        result = await server.call_tool(
+            "add_observations",
+            {"observations": [{"entityName": "NonExistent", "contents": ["test"]}]},
+        )
+        parsed = json.loads(result[1]["result"])
+        assert "notFound" in parsed
+        assert "NonExistent" in parsed["notFound"]
+
+    @pytest.mark.asyncio
+    async def test_notfound_absent_when_all_entities_exist(self, memory_file: str) -> None:
+        import json
+
+        from jade.mcp.memory_server import create_memory_server
+
+        server = create_memory_server(memory_file_path=memory_file)
+        await server.call_tool(
+            "create_entities",
+            {"entities": [{"name": "Exists", "entityType": "Concept", "observations": []}]},
+        )
+        result = await server.call_tool(
+            "add_observations",
+            {"observations": [{"entityName": "Exists", "contents": ["new obs"]}]},
+        )
+        parsed = json.loads(result[1]["result"])
+        assert "notFound" not in parsed
+
+
+class TestMemoryFilePathValidation:
+    """M9: memory_file_path must be resolved and validated."""
+
+    def test_rejects_non_jsonl_extension(self) -> None:
+        from jade.mcp.memory_server import create_memory_server
+
+        with pytest.raises(ValueError, match="must end with .jsonl"):
+            create_memory_server(memory_file_path="/tmp/bad.json")

@@ -28,11 +28,11 @@ class TestEntitySchema:
         with pytest.raises((ValueError, TypeError)):
             Entity(name="Alex", entity_type="", observations=[])
 
-    def test_entity_observations_default_to_empty_list(self) -> None:
+    def test_entity_observations_default_to_empty_tuple(self) -> None:
         from jade.mcp.entities import Entity
 
         entity = Entity(name="Alex", entity_type="Person")
-        assert entity.observations == []
+        assert entity.observations == ()
 
     def test_entity_with_multiple_observations(self) -> None:
         from jade.mcp.entities import Entity
@@ -40,6 +40,20 @@ class TestEntitySchema:
         obs = ["Prefers fail-fast patterns", "Uses uv for Python", "Works on jadecli-labs"]
         entity = Entity(name="Alex", entity_type="Person", observations=obs)
         assert len(entity.observations) == 3
+
+    def test_entity_coerces_list_observations_to_tuple(self) -> None:
+        from jade.mcp.entities import Entity
+
+        entity = Entity(name="Alex", entity_type="Person", observations=["a", "b"])
+        assert isinstance(entity.observations, tuple)
+        assert entity.observations == ("a", "b")
+
+    def test_entity_observations_tuple_is_immutable(self) -> None:
+        from jade.mcp.entities import Entity
+
+        entity = Entity(name="Alex", entity_type="Person", observations=["obs1"])
+        with pytest.raises((TypeError, AttributeError)):
+            entity.observations = ("changed",)  # type: ignore[misc]
 
 
 class TestJadeEntityTypes:
@@ -114,7 +128,7 @@ class TestObservation:
     def test_observation_is_non_empty_string(self) -> None:
         from jade.mcp.entities import validate_observation
 
-        assert validate_observation("Alex prefers fail-fast patterns") is True
+        validate_observation("Alex prefers fail-fast patterns")  # Should not raise
 
     def test_empty_observation_fails(self) -> None:
         from jade.mcp.entities import validate_observation

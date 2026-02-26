@@ -1,19 +1,6 @@
-/**
- * Health check endpoint — GET /api/health
- *
- * Returns service connectivity status (configured/not_configured).
- * Does not expose env var values or internal details.
- */
+import { NextResponse } from "next/server";
 
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-export default async function handler(
-  _req: VercelRequest,
-  res: VercelResponse
-) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-
+export function GET() {
   const checks: Record<string, string> = {
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -32,5 +19,5 @@ export default async function handler(
     ? "configured"
     : "not_configured";
 
-  res.status(200).json(checks);
+  return NextResponse.json(checks);
 }

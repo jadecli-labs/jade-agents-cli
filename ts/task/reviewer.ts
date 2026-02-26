@@ -66,7 +66,7 @@ function extractJsonFromTags(
   tag: string
 ): Record<string, unknown> {
   const pattern = new RegExp(
-    `<${tag}>\\s*({[\\s\\S]*?})\\s*</${tag}>`
+    `<${tag}>\\s*({[\\s\\S]*})\\s*</${tag}>`
   );
   const match = text.match(pattern);
   if (!match) {

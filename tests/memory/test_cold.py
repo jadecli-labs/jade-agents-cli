@@ -23,22 +23,16 @@ class TestColdMemoryConfig:
             ColdMemoryConfig(database_url="postgresql://localhost/test", api_key="")
 
     def test_valid_config(self) -> None:
-        config = ColdMemoryConfig(
-            database_url="postgresql://localhost/test", api_key="test-key"
-        )
+        config = ColdMemoryConfig(database_url="postgresql://localhost/test", api_key="test-key")
         assert config.database_url == "postgresql://localhost/test"
         assert config.api_key == "test-key"
 
     def test_default_embedding_dimensions(self) -> None:
-        config = ColdMemoryConfig(
-            database_url="postgresql://localhost/test", api_key="test-key"
-        )
+        config = ColdMemoryConfig(database_url="postgresql://localhost/test", api_key="test-key")
         assert config.embedding_dimensions == 1536
 
     def test_config_is_frozen(self) -> None:
-        config = ColdMemoryConfig(
-            database_url="postgresql://localhost/test", api_key="test-key"
-        )
+        config = ColdMemoryConfig(database_url="postgresql://localhost/test", api_key="test-key")
         with pytest.raises((AttributeError, TypeError)):
             config.database_url = "other"  # type: ignore[misc]
 
@@ -134,6 +128,22 @@ class TestColdMemorySearch:
             limit=1,
         )
         assert len(results) == 1
+
+
+class TestCosineSimilarityVectorMismatch:
+    """M5: cosine similarity must reject mismatched vector lengths."""
+
+    def test_mismatched_lengths_raises(self) -> None:
+        from jade.memory.cold import _cosine_similarity
+
+        with pytest.raises(ValueError):
+            _cosine_similarity([1.0, 0.0], [1.0, 0.0, 0.0])
+
+    def test_equal_lengths_succeeds(self) -> None:
+        from jade.memory.cold import _cosine_similarity
+
+        result = _cosine_similarity([1.0, 0.0], [1.0, 0.0])
+        assert abs(result - 1.0) < 1e-9
 
 
 class TestColdMemoryQuery:

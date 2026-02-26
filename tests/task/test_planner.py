@@ -72,6 +72,12 @@ class TestExtractJsonFromTags:
         with pytest.raises(ValueError, match="No <task_plan> tags found"):
             _extract_json_from_tags("Just text, no tags", "task_plan")
 
+    def test_handles_nested_json_with_newlines_in_values(self) -> None:
+        text = '<task_plan>\n{"title": "Test", "reasoning": "Line 1\\nLine 2", "nested": {"a": 1}}\n</task_plan>'
+        result = _extract_json_from_tags(text, "task_plan")
+        assert result["title"] == "Test"
+        assert result["nested"] == {"a": 1}
+
     def test_extracts_review_tags(self) -> None:
         text = '<task_review>\n{"verdict": "approve"}\n</task_review>'
         result = _extract_json_from_tags(text, "task_review")

@@ -19,6 +19,9 @@ COPY worker/ ./worker/
 FROM oven/bun:1.3-slim AS production
 WORKDIR /app
 
+# Create non-root user
+RUN addgroup --system jade && adduser --system --ingroup jade jade
+
 # Copy Python runtime
 COPY --from=python-base /usr/local /usr/local
 COPY --from=python-base /app/src ./src
@@ -31,6 +34,9 @@ COPY --from=bun-base /app/api ./api
 COPY --from=bun-base /app/worker ./worker
 
 COPY package.json tsconfig.json ./
+
+# Switch to non-root user
+USER jade
 
 EXPOSE 3000
 

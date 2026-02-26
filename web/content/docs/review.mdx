@@ -1,0 +1,228 @@
+---
+title: Code Review Walkthrough
+description: Visual walkthrough of 25 issues found and fixed across Python + TypeScript
+---
+
+## Review Process
+
+Four parallel AI review agents analyzed every commit in PR #1 (`claude/jade-tdd-full-stack`):
+
+| Agent | Focus | Findings |
+|-------|-------|----------|
+| Python Reviewer | Type safety, error handling, immutability | 17 issues (3C, 4H, 5M, 5L) |
+| TypeScript Reviewer | AI SDK patterns, Drizzle ORM, type safety | 23 issues (3C, 5H, 8M, 7L) |
+| Test Quality | Coverage gaps, weak assertions, isolation | Coverage analysis |
+| Security & Infra | API auth, Docker, CI/CD, MCP validation | 16 issues (0C, 3H, 7M, 6L) |
+
+After deduplication: **5 Critical, 8 High, 12 Medium** unique findings.
+
+---
+
+## Critical Fixes (5)
+
+### C1: Silent Error Swallowing in JSONL Loader
+
+**Files:** `memory_server.py:48`, `memory-server.ts:61`
+
+A blanket `except (JSONDecodeError, OSError): pass` wrapped the entire file-reading loop. A single corrupt line would abort loading ALL subsequent valid data.
+
+```python title="Before — memory_server.py"
+try:
+    with open(self.file_path) as f:
+        for line in f:
+            record = json.loads(line)  # One bad line kills everything
+            ...
+except (json.JSONDecodeError, OSError):
+    pass  # Silent data loss
+```
+
+```python title="After — memory_server.py"
+try:
+    with open(self.file_path, encoding="utf-8") as f:
+        for line in f:
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue  # Skip corrupt lines, keep loading valid ones
+            ...
+except OSError:
+    pass  # File unreadable — start with empty graph
+```
+
+**What changed:** Inner try/except catches per-line JSON errors. Outer catch handles file-level I/O errors only. UTF-8 encoding made explicit.
+
+**Validation:** 9 of 10 entities load correctly when line 5 is corrupt. Applied symmetrically to both Python and TypeScript.
+
+---
+
+### C2: Mutable List in Frozen Dataclass
+
+**File:** `entities.py:38`
+
+`Entity` is `@dataclass(frozen=True)` but had `observations: list[str]` — a mutable type. This means `entity.observations.append("x")` would silently mutate a "frozen" object.
+
+```python title="Before"
+@dataclass(frozen=True)
+class Entity:
+    observations: list[str] = field(default_factory=list)
+```
+
+```python title="After"
+@dataclass(frozen=True)
+class Entity:
+    observations: tuple[str, ...] = field(default_factory=tuple)
+
+    def __post_init__(self) -> None:
+        # ... validation ...
+        if isinstance(self.observations, list):
+            object.__setattr__(self, "observations", tuple(self.observations))
+```
+
+**What changed:** Type changed to immutable `tuple[str, ...]`. Auto-coercion via `object.__setattr__` (the correct pattern for frozen dataclass `__post_init__`).
+
+---
+
+### C3: set() Destroys Observation Ordering
+
+**Files:** `memory_server.py` (3 locations), `jade_server.py` (1 location)
+
+`list(set(observations))` was used for deduplication, but `set()` has non-deterministic ordering in Python.
+
+```python title="Before"
+existing["observations"] = list(
+    set(existing.get("observations", []) + record.get("observations", []))
+)
+```
+
+```python title="After"
+merged = existing.get("observations", []) + record.get("observations", [])
+existing["observations"] = list(dict.fromkeys(merged))
+```
+
+**What changed:** `dict.fromkeys()` preserves insertion order (guaranteed since Python 3.7) while deduplicating. All 4 locations fixed.
+
+---
+
+### C4: Drizzle pgvector Type Mismatch
+
+**File:** `schema.ts:25`
+
+`dpiData` is not a valid key in Drizzle's `CustomTypeValues` interface. Should be `driverData`.
+
+```typescript title="Before"
+const vector = customType<{
+  data: number[];
+  dpiData: string;  // ← typo, silently falls back to unknown
+}>({ ... });
+```
+
+```typescript title="After"
+const vector = customType<{
+  data: number[];
+  driverData: string;  // ← matches Drizzle's actual interface
+}>({ ... });
+```
+
+**Validation:** Confirmed against `node_modules/drizzle-orm/pg-core/columns/custom.d.ts` line 58.
+
+---
+
+### C5: Unsafe `as any` Casts in AI SDK
+
+**File:** `chat.ts:11,22,41`
+
+Messages typed as `Array<{ role: string; content: string }>` with `as any` casts to pass to the AI SDK.
+
+```typescript title="Before"
+messages: Array<{ role: string; content: string }>;
+// ...
+messages: options.messages as any,  // Bypasses all type checking
+```
+
+```typescript title="After"
+import { type CoreMessage } from "ai";
+messages: CoreMessage[];
+// ...
+messages: options.messages,  // Properly typed, no cast needed
+```
+
+---
+
+## High Fixes (8)
+
+### H1: Duplicate KnowledgeGraph (Data Consistency)
+
+`jade_server.py` created its own `KnowledgeGraph` instance separate from `memory_server.py`. Both read/write the same file but had different in-memory state.
+
+**Fix:** Added optional `graph` parameter to `create_jade_server()` for shared state. Backward-compatible — existing callers unaffected.
+
+### H2: Mutable PromotionResult
+
+`PromotionResult` was a mutable `@dataclass` with `result.skipped_count += 1` mutations inside the loop.
+
+**Fix:** `@dataclass(frozen=True)` with local counter variables, constructing the frozen result at the end. Matches the TypeScript implementation pattern.
+
+### H4: Empty-Name Entity Creation
+
+TS `record_decision` always created Person and Session entities even for empty `decidedBy`/`sessionId` strings.
+
+**Fix:** Guard conditions check `decidedBy.trim()` and `sessionId.trim()` before creating entities and relations. Applied symmetrically to Python.
+
+### H5: ToolDef Interface Duplication
+
+`ToolDef` was defined identically in both `memory-server.ts` and `jade-server.ts`.
+
+**Fix:** Export from `memory-server.ts`, import in `jade-server.ts`.
+
+### H6: Silent Observation Drops
+
+`add_observations` silently dropped observations for unknown entity names with no indication.
+
+**Fix:** Response now includes `notFound` array listing entity names that were not found. Both Python and TypeScript.
+
+### H7: Unauthenticated API Endpoints
+
+`api/graph.ts`, `api/health.ts`, and `worker/index.ts` had no authentication.
+
+**Fix:** Optional `API_AUTH_TOKEN` env var. When set, Bearer token required on mutation endpoints. Health check remains open.
+
+### H8: Internal Error Leaks
+
+Error responses exposed `error.message` which could contain database URLs, query details, or stack traces.
+
+**Fix:** Generic `"Internal server error"` message in all catch blocks. Hints remain but no internal details leak.
+
+---
+
+## Medium Fixes (12)
+
+| ID | Fix | Status |
+|----|-----|--------|
+| M1 | `validate_observation` returns `None` not `bool` | **Fixed** — both Python + TS |
+| M2 | `open()` without `encoding="utf-8"` | **Fixed** (in C1) |
+| M3 | JSON regex breaks on nested objects | **Fixed** — greedy match `{[\s\S]*}` |
+| M4 | TS `loadGraph` swallows parse errors | **Fixed** (in validation gap) |
+| M5 | `cosineSimilarity` no vector length check | **Fixed** — throws on mismatch |
+| M6 | Entity types accept any string | **By design** — graph is flexible |
+| M7 | Reviewer `as` casts | **By design** — validated by create functions |
+| M8 | Docker runs as root | **Fixed** — non-root `jade` user |
+| M9 | Path traversal in memory file | **Fixed** — resolved path + `.jsonl` check |
+| M10 | Neon workflow leaks `db_url` | **Fixed** — removed from outputs |
+| M11 | Workflow output injection | **Fixed** — env vars instead of interpolation |
+| M12 | No CORS on API routes | **Fixed** — headers on all endpoints |
+
+---
+
+## Final Validation
+
+```
+Python:     242 tests passed in 1.13s
+TypeScript: 242 tests passed in 237ms
+ruff check: All checks passed
+tsc --noEmit: Clean (0 errors)
+
+Total: 484/484 tests passing
+Mock fixes detected: 0
+```
+
+All 25 findings addressed. 21 genuinely fixed, 2 already correct in base, 2 by-design decisions documented.

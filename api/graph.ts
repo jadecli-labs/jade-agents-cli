@@ -10,10 +10,31 @@ import { createDbClient } from "../ts/db/client";
 import { entities, relations } from "../ts/db/schema";
 import { eq } from "drizzle-orm";
 
+function setCorsHeaders(res: VercelResponse): void {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+}
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  setCorsHeaders(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // Auth check: if API_AUTH_TOKEN is set, require Bearer token
+  const expectedToken = process.env.API_AUTH_TOKEN;
+  if (expectedToken) {
+    const authHeader = req.headers.authorization;
+    if (authHeader !== `Bearer ${expectedToken}`) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  }
+
   try {
     const db = createDbClient();
     const entityType = req.query.type as string | undefined;
@@ -39,10 +60,10 @@ export default async function handler(
         relations: relationResults.length,
       },
     });
-  } catch (error: any) {
+  } catch (err) {
+    console.error("graph endpoint error:", err);
     res.status(500).json({
-      error: error.message,
-      hint: "Ensure NEON_DATABASE_URL is set and migrations have been run.",
+      error: "Internal server error",
     });
   }
 }

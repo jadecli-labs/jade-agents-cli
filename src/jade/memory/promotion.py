@@ -13,7 +13,7 @@ from jade.memory.embeddings import EmbeddingPipeline  # noqa: TC001
 from jade.memory.hot import HotMemoryClient  # noqa: TC001
 
 
-@dataclass
+@dataclass(frozen=True)
 class PromotionResult:
     """Result of a promotion operation."""
 
@@ -41,7 +41,8 @@ class PromotionService:
             return PromotionResult(promoted_count=0)
 
         entities = session_data.get("entities", [])
-        result = PromotionResult()
+        promoted = 0
+        skipped = 0
 
         for entity in entities:
             name = entity.get("name", "")
@@ -51,7 +52,7 @@ class PromotionService:
             # Check if already promoted (idempotent)
             existing = self._cold.get_entity(name)
             if existing is not None:
-                result.skipped_count += 1
+                skipped += 1
                 continue
 
             # Generate embedding from observations
@@ -66,6 +67,6 @@ class PromotionService:
                 observations=observations,
                 embedding=embedding,
             )
-            result.promoted_count += 1
+            promoted += 1
 
-        return result
+        return PromotionResult(promoted_count=promoted, skipped_count=skipped)

@@ -4,12 +4,7 @@
  * Tools: record_decision, recall_context, update_hot_memory, log_insight
  */
 
-import { createMemoryServer } from "./memory-server";
-
-interface ToolDef {
-  name: string;
-  description: string;
-}
+import { createMemoryServer, type ToolDef } from "./memory-server";
 
 export function createJadeServer(opts: { memoryFilePath: string }) {
   const memoryServer = createMemoryServer(opts);
@@ -49,33 +44,45 @@ export function createJadeServer(opts: { memoryFilePath: string }) {
           const decidedBy = args.decidedBy ?? "";
           const sessionId = args.sessionId ?? "";
 
-          // Create decision entity + person + session + relations
+          // Create decision entity + conditionally person/session
+          const entitiesToCreate: any[] = [
+            {
+              name: decisionName,
+              entityType: "Decision",
+              observations: [rationale],
+            },
+          ];
+          if (decidedBy.trim()) {
+            entitiesToCreate.push({ name: decidedBy, entityType: "Person", observations: [] });
+          }
+          if (sessionId.trim()) {
+            entitiesToCreate.push({ name: sessionId, entityType: "Session", observations: [] });
+          }
+
           await memoryServer.callTool("create_entities", {
-            entities: [
-              {
-                name: decisionName,
-                entityType: "Decision",
-                observations: [rationale],
-              },
-              { name: decidedBy, entityType: "Person", observations: [] },
-              { name: sessionId, entityType: "Session", observations: [] },
-            ],
+            entities: entitiesToCreate,
           });
 
-          await memoryServer.callTool("create_relations", {
-            relations: [
-              {
-                from: decidedBy,
-                to: decisionName,
-                relationType: "made_decision",
-              },
-              {
-                from: decisionName,
-                to: sessionId,
-                relationType: "participated_in",
-              },
-            ],
-          });
+          const relationsToCreate: any[] = [];
+          if (decidedBy.trim()) {
+            relationsToCreate.push({
+              from: decidedBy,
+              to: decisionName,
+              relationType: "made_decision",
+            });
+          }
+          if (sessionId.trim()) {
+            relationsToCreate.push({
+              from: decisionName,
+              to: sessionId,
+              relationType: "participated_in",
+            });
+          }
+          if (relationsToCreate.length > 0) {
+            await memoryServer.callTool("create_relations", {
+              relations: relationsToCreate,
+            });
+          }
 
           return {
             status: "recorded",

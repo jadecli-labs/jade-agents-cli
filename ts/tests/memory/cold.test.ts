@@ -138,6 +138,36 @@ describe("Cold memory semantic search", () => {
   });
 });
 
+describe("Cosine similarity vector mismatch (M5)", () => {
+  let client: ColdMemoryClient;
+
+  beforeEach(() => {
+    client = new ColdMemoryClient({
+      databaseUrl: "postgresql://localhost/test",
+      apiKey: "test-key",
+      useFake: true,
+    });
+    client.insertEntity({
+      name: "entity-a",
+      entityType: "Decision",
+      observations: ["test"],
+      embedding: new Array(1536).fill(0.1),
+    });
+  });
+
+  it("rejects query vector with wrong dimensions", () => {
+    // 100-dim query against 1536-dim stored vectors
+    expect(() =>
+      client.semanticSearch(new Array(100).fill(0.1), 5)
+    ).toThrow();
+  });
+
+  it("accepts query vector with matching dimensions", () => {
+    const results = client.semanticSearch(new Array(1536).fill(0.1), 5);
+    expect(results.length).toBeGreaterThan(0);
+  });
+});
+
 describe("Cold memory query by type", () => {
   let client: ColdMemoryClient;
 
