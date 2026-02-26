@@ -14,7 +14,7 @@ Tracking user prompts across Claude Code sessions for this PR.
 
 > **Prompt 5:** "i want full production tier. lets... Full production"
 
-## Session 2 (current)
+## Session 2
 
 > **Prompt 1:** [Continuation context — session summary from compaction, requesting to continue from where we left off]
 
@@ -28,7 +28,9 @@ Tracking user prompts across Claude Code sessions for this PR.
 
 > **Prompt 6:** "update the PR body for https://github.com/jadecli-labs/jade-frontier-journal/pull/5/changes to include details from transcript review and what's done this session and not done. ilso want to store my user prompts in this session in this pr 5 for tracking"
 
-> **Prompt 7:** "update the PR body for https://github.com/jadecli-labs/jade-frontier-journal/pull/5/changes to include details from transcript review and what's done this session and not done. ilso want to store my user prompts in this session in this pr 5 for tracking"
+## Session 3 (current)
+
+> **Prompt 1:** "consider using the github mcp or use this github PAT token. i am okay with exposing them, i will rotate them latter. [PAT tokens + Neon API key + Redis Cloud credentials provided]"
 
 ## Decisions Made
 
