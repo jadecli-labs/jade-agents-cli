@@ -15,7 +15,7 @@ env:
 
 jobs:
   deploy-preview:
-    if: ${{ secrets.VERCEL_TOKEN != '' }}
+    if: vars.ENABLE_VERCEL_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
             });
 
   deploy-production:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.VERCEL_TOKEN != ''
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.ENABLE_VERCEL_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

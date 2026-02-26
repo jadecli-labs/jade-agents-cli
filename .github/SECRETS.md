@@ -4,8 +4,10 @@ Required secrets for full CI/CD and cloud deployment.
 
 ## Required Secrets (Settings → Secrets and variables → Actions)
 
-### Anthropic (Claude Code Action + API)
-- `ANTHROPIC_API_KEY` — From https://console.anthropic.com/settings/keys
+### Claude Code Action (OAuth — uses your Claude Pro/Max/Team subscription)
+- `CLAUDE_CODE_OAUTH_TOKEN` — Run `claude setup-token` locally, paste the output
+  - Uses your Claude subscription instead of pay-per-token API billing
+  - Token is tied to your claude.ai account (alex@jadecli.com)
 
 ### Neon (PostgreSQL + pgvector)
 - `NEON_API_KEY` — From https://console.neon.tech → Account Settings → API Keys
