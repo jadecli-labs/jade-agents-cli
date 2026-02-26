@@ -1,23 +1,23 @@
 # Jade Web App — Wireframes
 
-PR #7: feat(web): Jade Vercel web app
+Auto-generated from web/wireframes/*.txt — do not edit directly.
+Edit individual files, then run: bash web/wireframes/build.sh
 
-## Nav
+---
 
-```
+NAV — shared across all pages (except /docs which uses fumadocs nav)
+
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 |                                                  Search  Costs   |
 +------------------------------------------------------------------+
-```
 
-Fumadocs keeps its own nav for `/docs/*`. Everything else uses this bar.
+Active page is highlighted. Links to all 10 routes.
 
 ---
 
-## 1. Landing  `/`
+LANDING  /
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -41,13 +41,13 @@ Fumadocs keeps its own nav for `/docs/*`. Everything else uses this bar.
 |   +---------------------------+  +--------------------------+    |
 |                                                                  |
 +------------------------------------------------------------------+
-```
+
+Hero + stats + two feature cards linking to /graph and /dashboard.
 
 ---
 
-## 2. Dashboard  `/dashboard`
+DASHBOARD  /dashboard
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -74,13 +74,13 @@ Fumadocs keeps its own nav for `/docs/*`. Everything else uses this bar.
 |  GET /api/graph ............... 200 142ms                        |
 |                                                                  |
 +------------------------------------------------------------------+
-```
+
+Calls GET /api/health on load. Auto-refreshes. 4 service cards + endpoint latency.
 
 ---
 
-## 3. Graph  `/graph`
+GRAPH  /graph
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -109,15 +109,15 @@ Fumadocs keeps its own nav for `/docs/*`. Everything else uses this bar.
 |  +---------------------+  +----------------------------------+  |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Click entity left -> detail right. Type badges filter. Relations are clickable.
+Two-panel. Click entity left -> detail right.
+Type badges filter list. Relations are clickable links to other entities.
+Data from GET /api/graph.
 
 ---
 
-## 4. Tools  `/tools`
+TOOLS  /tools
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -155,15 +155,14 @@ Click entity left -> detail right. Type badges filter. Relations are clickable.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Static page. Data from `getJadeToolDefinitions()`. Grouped by server.
+Static page. Data from getJadeToolDefinitions(). Grouped by server.
+Each tool shows name, description, required params from inputSchema.
 
 ---
 
-## 5. Tasks  `/tasks`
+TASKS  /tasks
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -193,16 +192,17 @@ Static page. Data from `getJadeToolDefinitions()`. Grouped by server.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Input a task description -> get a plan with steps, token estimates, cost.
-Review panel shows verdict + findings with severity.
+Input task description -> get plan with steps, token estimates, cost.
+Review panel shows verdict (approve/revise/reject) + findings with severity.
+Data from POST /api/plan and POST /api/review.
+Types from ts/task/spec.ts (TaskPlan, TaskStep, TaskReview).
+Cost from ts/task/cost.ts (estimateCost, formatCost).
 
 ---
 
-## 6. Sessions  `/sessions`
+SESSIONS  /sessions
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -234,16 +234,16 @@ Review panel shows verdict + findings with severity.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Click row -> expand detail. Shows TTL countdown, promotion status, active threads,
-working memory namespaces.
+Click row -> expand detail below.
+Shows TTL countdown, promotion status, active threads, working memory namespaces.
+Data from GET /api/sessions (Neon sessions table + Upstash TTL).
+Promote button calls POST /api/promote/[id].
 
 ---
 
-## 7. Chat  `/chat`
+CHAT  /chat
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -278,15 +278,15 @@ working memory namespaces.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Streaming via Vercel AI SDK `useChat`. Tool calls inline as collapsible cards.
+Streaming via Vercel AI SDK useChat. Tool calls inline as collapsible cards.
+Cards show: tool name, input params, result summary.
+Data from POST /api/chat (streamText with MCP tools).
 
 ---
 
-## 8. Traces  `/traces`
+TRACES  /traces
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -315,15 +315,16 @@ Streaming via Vercel AI SDK `useChat`. Tool calls inline as collapsible cards.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Click row -> expand trace timeline. Links to entities in `/graph`.
+Click row -> expand trace timeline below.
+Spans as horizontal bars proportional to duration.
+Token breakdown per session. Links to entities in /graph.
+Data from Langfuse API (read-only).
 
 ---
 
-## 9. Search  `/search`
+SEARCH  /search
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -350,16 +351,16 @@ Click row -> expand trace timeline. Links to entities in `/graph`.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Natural language query -> embedding -> cosine similarity against cold memory.
-Results show entity name, type badge, similarity score, first observation.
+Natural language query -> embed -> cosine similarity against cold memory.
+Results: entity name, type badge, similarity score, first observation.
+Click result -> navigate to entity in /graph.
+Data from POST /api/search (EmbeddingPipeline + ColdMemoryClient.semanticSearch).
 
 ---
 
-## 10. Costs  `/costs`
+COSTS  /costs
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 +------------------------------------------------------------------+
@@ -387,20 +388,17 @@ Results show entity name, type badge, similarity score, first observation.
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Static pricing table from `PRICING` in `ts/task/cost.ts`.
-Session costs computed via `calculateCost()` + `formatUsageSummary()`.
-
----
+Top: static pricing table from PRICING in ts/task/cost.ts.
+Bottom: per-session costs via calculateCost() + formatUsageSummary().
+Data from GET /api/costs (aggregates token usage across sessions).
 
 ---
 
-## 11. Analytics  `/analytics`
+ANALYTICS  /analytics
 
-Unlocked by: Cube.js setup (`ts/semantic/cube-client.ts`)
+Unlocked by: Cube.js setup (ts/semantic/cube-client.ts)
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
 |                                        Search  Costs  Analytics  |
@@ -438,20 +436,20 @@ Unlocked by: Cube.js setup (`ts/semantic/cube-client.ts`)
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Three charts: sessions over time, tool usage, tokens by model.
-Data from Cube.js semantic layer via `CubeClient.query()`.
+Three charts: sessions over time (line), tool usage (horizontal bar),
+tokens by model (horizontal bar with %).
+Data from Cube.js semantic layer via CubeClient.query().
 
 ---
 
-## 12. Agent Actions  `/actions`
+AGENT ACTIONS  /actions
 
 Unlocked by: Agent SDK wrapper (Claude Agent SDK integration)
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                                   Search  Costs  Analytics  Actions|
 +------------------------------------------------------------------+
 |                                                                  |
 |  Live Agent Actions                                              |
@@ -484,20 +482,20 @@ Unlocked by: Agent SDK wrapper (Claude Agent SDK integration)
 |  +------------------------------------------------------------+ |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Live action feed (most recent first). ROTS metrics. Active sessions with running costs.
+Live action feed (most recent first). ROTS metrics panel.
+Active sessions with running cost totals.
 Data from Agent SDK action recorder + token/cost metadata.
 
 ---
 
-## 13. Workers  `/workers`
+WORKERS  /workers
 
 Unlocked by: Knowledge workers (11 worker configs + plugin system)
 
-```
 +------------------------------------------------------------------+
 | JADE    Dashboard  Graph  Tools  Tasks  Sessions  Chat  Traces   |
+|                              Search  Costs  Analytics  Workers   |
 +------------------------------------------------------------------+
 |                                                                  |
 |  Knowledge Workers                                  11 available |
@@ -527,29 +525,31 @@ Unlocked by: Knowledge workers (11 worker configs + plugin system)
 |  +---------------------+  +----------------------------------+  |
 |                                                                  |
 +------------------------------------------------------------------+
-```
 
-Two-panel like `/graph`. Click worker left -> detail right.
+Two-panel like /graph. Click worker left -> detail right.
 Shows: description, connectors list, 6-agent dev team, deploy status.
 Data from worker config YAML files + plugin registry.
 
 ---
 
-## Page Summary
+PAGE SUMMARY
 
-| Route | Purpose | Data Source | Blocked By |
-|-------|---------|-------------|------------|
-| `/` | Landing | Static | — |
-| `/dashboard` | Service health | `GET /api/health` | — |
-| `/graph` | Knowledge graph | `GET /api/graph` | Drizzle migrations |
-| `/tools` | MCP tool reference | `getJadeToolDefinitions()` | — |
-| `/tasks` | Task planning + review | `POST /api/plan`, `POST /api/review` | — |
-| `/sessions` | Session browser | `GET /api/sessions` | Upstash route |
-| `/chat` | Agent conversation | `POST /api/chat` (streaming) | AI SDK route |
-| `/traces` | Trace viewer | Langfuse API | Langfuse route |
-| `/search` | Semantic search | `POST /api/search` | Embedding pipeline |
-| `/costs` | Pricing + spend | `PRICING` + `calculateCost()` | — |
-| `/analytics` | Charts + metrics | `CubeClient.query()` | Cube.js setup |
-| `/actions` | Live agent feed + ROTS | Agent SDK recorder | Agent SDK wrapper |
-| `/workers` | Knowledge worker catalog | Worker YAML configs | Worker configs |
-| `/docs/*` | Documentation | MDX via fumadocs | — |
+| Route        | Purpose                | Data Source                       | Blocked By         |
+|--------------|------------------------|-----------------------------------|---------------------|
+| /            | Landing                | Static                            | —                   |
+| /dashboard   | Service health         | GET /api/health                   | —                   |
+| /graph       | Knowledge graph        | GET /api/graph                    | Drizzle migrations  |
+| /tools       | MCP tool reference     | getJadeToolDefinitions()          | —                   |
+| /tasks       | Task planning + review | POST /api/plan, POST /api/review  | —                   |
+| /sessions    | Session browser        | GET /api/sessions                 | Upstash route       |
+| /chat        | Agent conversation     | POST /api/chat (streaming)        | AI SDK route        |
+| /traces      | Trace viewer           | Langfuse API                      | Langfuse route      |
+| /search      | Semantic search        | POST /api/search                  | Embedding pipeline  |
+| /costs       | Pricing + spend        | PRICING + calculateCost()         | —                   |
+| /analytics   | Charts + metrics       | CubeClient.query()                | Cube.js setup       |
+| /actions     | Live agent feed + ROTS | Agent SDK recorder                | Agent SDK wrapper   |
+| /workers     | Worker catalog         | Worker YAML configs               | Worker configs      |
+| /docs/*      | Documentation          | MDX via fumadocs                  | —                   |
+
+---
+Generated from 15 wireframe files.
