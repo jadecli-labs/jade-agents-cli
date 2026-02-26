@@ -69,8 +69,13 @@ class KnowledgeGraph:
 
 def create_memory_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
     """Create a FastMCP server with all 9 knowledge graph tools."""
+    resolved = os.path.realpath(memory_file_path)
+    if not resolved.endswith(".jsonl"):
+        msg = "memory_file_path must end with .jsonl"
+        raise ValueError(msg)
+
     mcp = FastMCP("jade-memory")
-    graph = KnowledgeGraph(file_path=memory_file_path)
+    graph = KnowledgeGraph(file_path=resolved)
     graph.load()
 
     @mcp.tool()
@@ -119,6 +124,7 @@ def create_memory_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
     def add_observations(observations: list[dict[str, Any]]) -> str:
         """Add observations to existing entities."""
         added = []
+        not_found: list[str] = []
         for obs in observations:
             entity_name = obs.get("entityName", "")
             contents = obs.get("contents", [])
@@ -127,8 +133,13 @@ def create_memory_server(memory_file_path: str = "./memory.jsonl") -> FastMCP:
                 merged = entity.get("observations", []) + contents
                 entity["observations"] = list(dict.fromkeys(merged))
                 added.append({"entityName": entity_name, "addedCount": len(contents)})
+            else:
+                not_found.append(entity_name)
         graph.save()
-        return json.dumps({"added": added})
+        result: dict[str, Any] = {"added": added}
+        if not_found:
+            result["notFound"] = not_found
+        return json.dumps(result)
 
     @mcp.tool()
     def delete_entities(entityNames: list[str]) -> str:  # noqa: N803

@@ -142,6 +142,7 @@ export function createMemoryServer(opts: { memoryFilePath: string }) {
 
         case "add_observations": {
           const added: any[] = [];
+          const notFound: string[] = [];
           for (const obs of args.observations ?? []) {
             const entity = graph.entities.find(
               (e) => e.name === obs.entityName
@@ -154,10 +155,14 @@ export function createMemoryServer(opts: { memoryFilePath: string }) {
                 entityName: obs.entityName,
                 addedCount: (obs.contents ?? []).length,
               });
+            } else {
+              notFound.push(obs.entityName);
             }
           }
           saveGraph(graph, filePath);
-          return { added };
+          const result: any = { added };
+          if (notFound.length > 0) result.notFound = notFound;
+          return result;
         }
 
         case "delete_entities": {
