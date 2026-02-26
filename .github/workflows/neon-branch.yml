@@ -13,7 +13,7 @@ env:
 
 jobs:
   create-branch:
-    if: github.event.action != 'closed'
+    if: github.event.action != 'closed' && vars.NEON_PROJECT_ID != ''
     runs-on: ubuntu-latest
     outputs:
       db_url: ${{ steps.branch.outputs.db_url }}
@@ -45,7 +45,7 @@ jobs:
             });
 
   delete-branch:
-    if: github.event.action == 'closed'
+    if: github.event.action == 'closed' && vars.NEON_PROJECT_ID != ''
     runs-on: ubuntu-latest
     steps:
       - name: Delete Neon branch
