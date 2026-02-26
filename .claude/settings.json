@@ -1,4 +1,37 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(make *)",
+      "Bash(uv run pytest *)",
+      "Bash(uv run ruff *)",
+      "Bash(bun test *)",
+      "Bash(bun run tsc *)",
+      "Bash(bunx drizzle-kit *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push -u origin claude/*)",
+      "Bash(git fetch *)",
+      "Bash(git branch *)",
+      "Bash(gh pr *)",
+      "Bash(gh api *)",
+      "Bash(gh auth status *)",
+      "Read",
+      "Edit",
+      "Skill"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push origin * --force)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)",
+      "Bash(curl * | bash)",
+      "Read(.env)",
+      "Read(.env.*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -10,6 +43,21 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if [[ \"$file\" == *.py ]]; then uv run ruff check --fix \"$file\" 2>/dev/null || true; fi"
+          }
+        ]
+      }
     ]
+  },
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "UV_LINK_MODE": "copy"
   }
 }
